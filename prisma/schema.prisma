@@ -21,6 +21,7 @@ model User {
   articles             Article[]
   feedbacks            Feedback[]
   readArticles         ReadArticle[]
+  Like                 Like[]
 }
 
 model ReadArticle {
@@ -54,19 +55,19 @@ model Article {
   updated_at   DateTime      @default(now()) @updatedAt
   userId       String?
   author       User?         @relation(fields: [userId], references: [superTokenId])
-  likes     Int      @default(0)
+  likes        Int           @default(0)
   reports      Feedback[]
   readArticles ReadArticle[]
+  Like         Like[]
 }
 
 model Like {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  articleId Int
-  user     User     @relation(fields: [userId], references: [id])
-  article  Article  @relation(fields: [articleId], references: [id])
+  id               Int     @id @default(autoincrement())
+  user             User    @relation(fields: [userSuperTokenId], references: [superTokenId])
+  article          Article @relation(fields: [articleId], references: [id])
+  userSuperTokenId String
+  articleId        BigInt
 }
-
 
 enum CredentialProvider {
   email
