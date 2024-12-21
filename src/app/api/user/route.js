@@ -4,6 +4,7 @@ import { ensureSuperTokensInit } from '../../config/backend';
 
 ensureSuperTokensInit();
 
+//Send a request to api/user to verify login status for addional server side security before calling any server functions
 export function GET(request) {
   return withSession(request, async (err, session) => {
     if (err) {

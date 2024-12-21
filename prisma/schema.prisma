@@ -20,29 +20,59 @@ enum CredentialProvider {
   facebook
 }
 
+enum Level {
+  beginner
+  intermediary
+  advanced
+}
+
 model User {
-  superTokenId String             @id
-  name         String             @default("")
-  email        String
-  provider     CredentialProvider
-  preferences  String[]           @default([])
-  is_admin     Boolean            @default(false)
-  created_at   DateTime           @default(now())
-  updated_at   DateTime           @default(now()) @updatedAt
-  articles     Article[]
+  superTokenId         String             @id
+  name                 String             @default("")
+  email                String
+  provider             CredentialProvider
+  preferences          String[]           @default([])
+  level                Level              @default(beginner)
+  is_admin             Boolean            @default(false)
+  completed_onboarding Boolean            @default(false)
+  created_at           DateTime           @default(now())
+  updated_at           DateTime           @default(now()) @updatedAt
+  articles             Article[]
+  readArticles         ReadArticle[]
+  feedbacks            Feedback[]
+}
+
+model ReadArticle {
+  id               BigInt  @id @default(autoincrement())
+  user             User    @relation(fields: [userSuperTokenId], references: [superTokenId])
+  article          Article @relation(fields: [articleId], references: [id])
+  userSuperTokenId String
+  articleId        BigInt
+}
+
+model Feedback {
+  id               BigInt   @id @default(autoincrement())
+  user             User     @relation(fields: [userSuperTokenId], references: [superTokenId])
+  userSuperTokenId String
+  content          String?
+  positive         Boolean  @default(true)
+  articles         Article? @relation(fields: [articleId], references: [id])
+  articleId        BigInt?
 }
 
 model Article {
-  id         BigInt   @id @default(autoincrement())
-  title      String
-  summary    String
-  references Json     @default("[]")
-  category   String   @default("general")
-  fields     String[] @default([])
-  content    String   @db.Text
-  ai         Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
-  author     User     @relation(fields: [userId], references: [superTokenId])
-  userId     String
+  id           BigInt        @id @default(autoincrement())
+  title        String
+  summary      String
+  references   Json          @default("[]")
+  category     String        @default("general") //The domain/industry this article belongs to e.g Fashion
+  fields       String[]      @default([])
+  content      String        @db.Text
+  ai           Boolean       @default(true)
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @default(now()) @updatedAt
+  author       User?         @relation(fields: [userId], references: [superTokenId])
+  userId       String?
+  reports      Feedback[]
+  readArticles ReadArticle[]
 }
