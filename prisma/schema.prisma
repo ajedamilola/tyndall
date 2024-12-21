@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:drowssap@localhost:5432/tyndal?schema=public"
+  url      = env(DATABASE_URL)
 }
 
 model User {
