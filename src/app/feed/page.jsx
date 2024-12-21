@@ -1,9 +1,8 @@
 "use client"
-import { generateArticles } from '@/app/api/article/functions';
-import { editUser, generateMoreArticles, getUserById } from '@/app/api/user/functions'
+import { generateMoreArticles } from '@/app/api/user/functions'
 import Logout from '@/app/components/logout';
 import SessionValidator from '@/app/components/sessionValidator'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 function Page() {
   const [content, setContent] = useState("")

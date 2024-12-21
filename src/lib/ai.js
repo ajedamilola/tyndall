@@ -33,4 +33,14 @@ const pro = genAI.getGenerativeModel({
   safetySettings,
 })
 
+export function trimResponse(raw) {
+  let rawText = raw;
+  if (rawText.includes("```json")) {
+    const start = rawText.indexOf("```json")
+    const end = rawText.lastIndexOf("```")
+    rawText = rawText.substring(start + 8, end);
+  }
+  return rawText;
+}
+
 export const model = { flash, pro }
