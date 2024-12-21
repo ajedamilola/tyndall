@@ -1,6 +1,6 @@
 "use server"
 
-import { model } from "@/lib/api"
+import { model } from "@/lib/ai"
 import prisma from "@/lib/prisma"
 import fs from "fs/promises"
 
@@ -102,5 +102,37 @@ export async function toggleArticleLike(articleId, userId) {
   } catch (error) {
     console.error('Error toggling like:', error);
     throw error; // Re-throw the error to be handled by the calling function
+  }
+}
+
+export async function createComment(articleId, userId, content) {
+  try {
+    const newComment = await prisma.comment.create({
+      data: {
+        articleId,
+        userId,
+        content,
+      },
+    });
+    return newComment;
+  } catch (error) {
+    console.error("Error creating comment:", error);
+    throw error; 
+  }
+}
+
+export async function getCommentsByArticleId(articleId) {
+  try {
+    const comments = await prisma.comment.findMany({
+      where: { articleId },
+      include: {
+        user: { select: { name: true } }, // Include user name
+      },
+      orderBy: { createdAt: 'desc' }, // Order comments by creation time
+    });
+    return comments;
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    throw error;
   }
 }
