@@ -3,8 +3,8 @@
 import { model, trimResponse } from "@/lib/ai"
 import prisma from "@/lib/prisma"
 import fs from "fs/promises"
+import { getUserById } from "../user/functions"
 
-//Abeg your limit make he no pass like 100 it might be too much for the AI Ejor, Biko, Abeg 🙏  
 export async function generateAIArticles(domains = [], limit = 10, level = "beginner") {
   try {
     const simmilarTopics = await prisma.article.findMany({
@@ -33,7 +33,7 @@ export async function generateAIArticles(domains = [], limit = 10, level = "begi
       return count <= (process.env.MAX_FIELD_ARTICLES || 500)
     }))
 
-    const chat = await model.flash.generateContent([
+    const chat = await model.pro.generateContent([
       {
         text: "You are part of a education resource hub , you are a bot generate  highly educative articles. Generate educational articles that a researcher or student might want to read based on the fields, areas and domain you are given. so the response will be an array Article objects. Each article object has the following fields: title,summary,tags,category. Your response should be purely in JSON. if you find any sexually explicit, illegal content or come across any error or issue repond with a object with an error key stating the nature of your error. Let your JSON Be Minnified and no line breaks",
       },
@@ -42,12 +42,18 @@ export async function generateAIArticles(domains = [], limit = 10, level = "begi
         Fields: ${allowedDomains.join(",")}
         Limit: ${limit}
         Excluded Topics: ${simmilarTopics.map(a => a.title)}
+        Level: ${level}
       `
       }
     ])
-    let textResponse = trimResponse(chat.response.text());
-    await fs.writeFile("response.json", textResponse);
-    return JSON.parse(textResponse);
+    let rawText = chat.response.text();
+    if (rawText.includes("```json")) {
+      const start = rawText.indexOf("```json")
+      const end = rawText.lastIndexOf("```")
+      rawText = rawText.substring(start + 8, end);
+    }
+    await fs.writeFile("response.json", rawText);
+    return JSON.parse(rawText);
   } catch (error) {
     console.log(error)
     return { err: "Unable to generate at this time" }
@@ -55,78 +61,63 @@ export async function generateAIArticles(domains = [], limit = 10, level = "begi
 
 }
 
-export async function generateArticleContent(id) {
-  //TODO: Implement this
-}
-export async function getArticleById(id){
+export async function getArticleById(id) {
   return await prisma.article.findUnique({
-      id: id
-    })
-  
+    id: id
+  })
+
 }
-export async function toggleArticleLike(articleId, userId) {
+
+export async function generateArticleContent(id) {
+  const article = await prisma.article.findUnique({
+    where: {
+      id: id
+    }
+  });
+  const chat = await model.pro.generateContent([
+    {
+      text: ""
+    }
+  ])
+}
+
+export async function getArticles({ userId, page = 1 }) {
   try {
-    const article = await prisma.article.findUnique(articleId)
-    if(article.likes.includes(userId)){
-      article.likes.pop()
-      await prisma.article.update({
-        where: {id: article},
-        data: {
-          likes: article
+    if (userId) {
+      //Get Personalized articles
+      const user = await getUserById(userId)
+      const articles = await prisma.article.findMany({
+        where: {
+          OR: [
+            {
+              fields: {
+                hasSome: user.preferences,
+              }
+            },
+            {
+              category: {
+                in: user.preferences,
+                mode: "insensitive"
+              }
+            }
+          ]
+        },
+        orderBy: {
+          updated_at: "desc"
         }
       })
-      
-    }else{
-    const updatedLikes = article.likes.push(userId)
-     await prisma.like.update({
-      where: { id: like.id },
-      data: {
-        likes: updatedLikes,
-     
-      },
-    });
+      return { articles: articles.sort(() => Math.random() - 0.5) }
     }
-
-    // Refetch the article to get the updated likes count
-    const updatedArticle = await prisma.article.findUnique(articleId)
-    
-
-    return updatedArticle;
+    const articles = await prisma.article.findMany({
+      skip: (page - 1) * 100,
+      take: 100,
+      orderBy: {
+        updated_at: "desc"
+      }
+    })
+    return { articles: articles.sort(() => Math.random() - 0.5) }
   } catch (error) {
-    console.error('Error toggling like:', error);
-    throw error; // Re-throw the error to be handled by the calling function
+    console.log(error)
+    return { err: "Unable to fetch articles at this time" }
   }
 }
-
-export async function createComment(articleId, userId, content) {
-  try {
-    const newComment = await prisma.comment.create({
-      data: {
-        articleId,
-        userId,
-        content,
-      },
-    });
-    return newComment;
-  } catch (error) {
-    console.error("Error creating comment:", error);
-    throw error; 
-  }
-}
-
-export async function getCommentsByArticleId(articleId) {
-  try {
-    const comments = await prisma.comment.findMany({
-      where: { articleId },
-      include: {
-        user: { select: { name: true } }, // Include user name
-      },
-      orderBy: { createdAt: 'desc' }, // Order comments by creation time
-    });
-    return comments;
-  } catch (error) {
-    console.error("Error fetching comments:", error);
-    throw error;
-  }
-}
-
