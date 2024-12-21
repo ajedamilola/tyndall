@@ -58,3 +58,75 @@ export async function generateAIArticles(domains = [], limit = 10, level = "begi
 export async function generateArticleContent(id) {
   //TODO: Implement this
 }
+export async function getArticleById(id){
+  return await prisma.article.findUnique({
+      id: id
+    })
+  
+}
+export async function toggleArticleLike(articleId, userId) {
+  try {
+    const article = await prisma.article.findUnique(articleId)
+    if(article.likes.includes(userId)){
+      article.likes.pop()
+      await prisma.article.update({
+        where: {id: article},
+        data: {
+          likes: article
+        }
+      })
+      
+    }else{
+    const updatedLikes = article.likes.push(userId)
+     await prisma.like.update({
+      where: { id: like.id },
+      data: {
+        likes: updatedLikes,
+     
+      },
+    });
+    }
+
+    // Refetch the article to get the updated likes count
+    const updatedArticle = await prisma.article.findUnique(articleId)
+    
+
+    return updatedArticle;
+  } catch (error) {
+    console.error('Error toggling like:', error);
+    throw error; // Re-throw the error to be handled by the calling function
+  }
+}
+
+export async function createComment(articleId, userId, content) {
+  try {
+    const newComment = await prisma.comment.create({
+      data: {
+        articleId,
+        userId,
+        content,
+      },
+    });
+    return newComment;
+  } catch (error) {
+    console.error("Error creating comment:", error);
+    throw error; 
+  }
+}
+
+export async function getCommentsByArticleId(articleId) {
+  try {
+    const comments = await prisma.comment.findMany({
+      where: { articleId },
+      include: {
+        user: { select: { name: true } }, // Include user name
+      },
+      orderBy: { createdAt: 'desc' }, // Order comments by creation time
+    });
+    return comments;
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    throw error;
+  }
+}
+
