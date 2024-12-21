@@ -1,29 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum CredentialProvider {
-  email
-  google
-  github
-  facebook
-}
-
-enum Level {
-  beginner
-  intermediary
-  advanced
+  url      = "postgresql://postgres:drowssap@localhost:5432/tyndal?schema=public"
 }
 
 model User {
@@ -38,26 +19,26 @@ model User {
   created_at           DateTime           @default(now())
   updated_at           DateTime           @default(now()) @updatedAt
   articles             Article[]
-  readArticles         ReadArticle[]
   feedbacks            Feedback[]
+  readArticles         ReadArticle[]
 }
 
 model ReadArticle {
   id               BigInt  @id @default(autoincrement())
-  user             User    @relation(fields: [userSuperTokenId], references: [superTokenId])
-  article          Article @relation(fields: [articleId], references: [id])
   userSuperTokenId String
   articleId        BigInt
+  article          Article @relation(fields: [articleId], references: [id])
+  user             User    @relation(fields: [userSuperTokenId], references: [superTokenId])
 }
 
 model Feedback {
   id               BigInt   @id @default(autoincrement())
-  user             User     @relation(fields: [userSuperTokenId], references: [superTokenId])
   userSuperTokenId String
   content          String?
   positive         Boolean  @default(true)
-  articles         Article? @relation(fields: [articleId], references: [id])
   articleId        BigInt?
+  articles         Article? @relation(fields: [articleId], references: [id])
+  user             User     @relation(fields: [userSuperTokenId], references: [superTokenId])
 }
 
 model Article {
@@ -65,14 +46,37 @@ model Article {
   title        String
   summary      String
   references   Json          @default("[]")
-  category     String        @default("general") //The domain/industry this article belongs to e.g Fashion
+  category     String        @default("general")
   fields       String[]      @default([])
-  content      String        @db.Text
+  content      String
   ai           Boolean       @default(true)
   created_at   DateTime      @default(now())
   updated_at   DateTime      @default(now()) @updatedAt
-  author       User?         @relation(fields: [userId], references: [superTokenId])
   userId       String?
+  author       User?         @relation(fields: [userId], references: [superTokenId])
+  likes     Int      @default(0)
   reports      Feedback[]
   readArticles ReadArticle[]
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  articleId Int
+  user     User     @relation(fields: [userId], references: [id])
+  article  Article  @relation(fields: [articleId], references: [id])
+}
+
+
+enum CredentialProvider {
+  email
+  google
+  github
+  facebook
+}
+
+enum Level {
+  beginner
+  intermediary
+  advanced
 }
