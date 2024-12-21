@@ -33,25 +33,31 @@ export async function generateAIArticles(domains = [], limit = 10, level = "begi
       return count <= (process.env.MAX_FIELD_ARTICLES || 500)
     }))
 
-    const chat = await model.pro.generateContent([
-      {
-        text: "You are part of a education resource hub , you are a bot generate  highly educative articles. Generate educational articles that a researcher or student might want to read based on the fields, areas and domain you are given. so the response will be an array Article objects. Each article object has the following fields: title,summary,tags,category. Your response should be purely in JSON. if you find any sexually explicit, illegal content or come across any error or issue repond with a object with an error key stating the nature of your error. Let your JSON Be Minnified and no line breaks",
-      },
-      {
-        text: `
-        Fields: ${allowedDomains.join(",")}
+    console.time("Duration")
+    const response = await model.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 8192,
+      temperature: 0,
+      system: "You are part of a education resource hub , you are a bot generate  highly educative articles. Generate educational articles that a researcher or student might want to read based on the fields, areas and domain you are given. so the response will be an array Article objects. Each article object has the following fields: title,summary,tags,category. Your response should be purely in JSON. if you find any sexually explicit, illegal content or come across any error or issue repond with a object with an error key stating the nature of your error. Let your JSON Be Minnified and no line breaks",
+      messages: [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": `
+                 Fields: ${allowedDomains.join(",")}
         Limit: ${limit}
         Excluded Topics: ${simmilarTopics.map(a => a.title)}
         Level: ${level}
-      `
-      }
-    ])
-    let rawText = chat.response.text();
-    if (rawText.includes("```json")) {
-      const start = rawText.indexOf("```json")
-      const end = rawText.lastIndexOf("```")
-      rawText = rawText.substring(start + 8, end);
-    }
+              `
+            }
+          ]
+        }
+      ]
+    });
+    let rawText = response.content[0].text;
+    console.timeEnd("Duration")
     await fs.writeFile("response.json", rawText);
     return JSON.parse(rawText);
   } catch (error) {

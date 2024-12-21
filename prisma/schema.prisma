@@ -43,22 +43,23 @@ model Feedback {
 }
 
 model Article {
-  id           BigInt        @id @default(autoincrement())
-  title        String
-  summary      String
-  references   Json          @default("[]")
-  category     String        @default("general")
-  fields       String[]      @default([])
-  content      String
-  ai           Boolean       @default(true)
-  created_at   DateTime      @default(now())
-  updated_at   DateTime      @default(now()) @updatedAt
-  userId       String?
-  author       User?         @relation(fields: [userId], references: [superTokenId])
-  reports      Feedback[]
-  readArticles ReadArticle[]
-  likes        String[]
-  Comment      Comment[]
+  id               BigInt        @id @default(autoincrement())
+  title            String
+  summary          String
+  references       Json          @default("[]")
+  category         String        @default("general")
+  fields           String[]      @default([])
+  content          String
+  ai               Boolean       @default(true)
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @default(now()) @updatedAt
+  userId           String?
+  generatedContent Boolean       @default(false)
+  author           User?         @relation(fields: [userId], references: [superTokenId])
+  reports          Feedback[]
+  readArticles     ReadArticle[]
+  likes            String[]
+  Comment          Comment[]
 }
 
 enum CredentialProvider {
