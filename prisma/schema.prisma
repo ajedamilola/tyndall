@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:drowssap@localhost:5432/tyndal?schema=public"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -21,7 +21,6 @@ model User {
   articles             Article[]
   feedbacks            Feedback[]
   readArticles         ReadArticle[]
-  Like                 Like[]
 }
 
 model ReadArticle {
@@ -55,18 +54,9 @@ model Article {
   updated_at   DateTime      @default(now()) @updatedAt
   userId       String?
   author       User?         @relation(fields: [userId], references: [superTokenId])
-  likes        Int           @default(0)
   reports      Feedback[]
   readArticles ReadArticle[]
-  Like         Like[]
-}
-
-model Like {
-  id               Int     @id @default(autoincrement())
-  user             User    @relation(fields: [userSuperTokenId], references: [superTokenId])
-  article          Article @relation(fields: [articleId], references: [id])
-  userSuperTokenId String
-  articleId        BigInt
+  likes        String[]
 }
 
 enum CredentialProvider {
