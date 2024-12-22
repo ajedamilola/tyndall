@@ -22,6 +22,8 @@ model User {
   feedbacks            Feedback[]
   readArticles         ReadArticle[]
   coments              Comment[]
+  telementry           Telementry         @relation(fields: [telementryId], references: [id])
+  telementryId         BigInt
 }
 
 model ReadArticle {
@@ -92,4 +94,13 @@ model Comment {
   user             User     @relation(fields: [userSuperTokenId], references: [superTokenId])
   article          Article  @relation(fields: [articleId], references: [id])
   userSuperTokenId String
+}
+
+//Usage data used by AI to suggest articles
+model Telementry {
+  id                BigInt   @id @default(autoincrement())
+  likedArticles     String[] @default([])
+  dislikedArticles  String[] @default([])
+  commentedArticles String[] @default([])
+  users             User[]
 }

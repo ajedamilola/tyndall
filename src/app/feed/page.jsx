@@ -3,13 +3,17 @@ import { generateMoreArticles } from "@/app/api/user/functions";
 import Logout from "@/app/components/logout";
 import SessionValidator from "@/app/components/sessionValidator";
 import React, { useState } from "react";
-import { generateAIArticleContent } from "../api/article/functions";
+import { generateAIArticleContent, generateAIArticles } from "../api/article/functions";
 
 function Page() {
   const [content, setContent] = useState("");
   async function act() {
     setContent("loading");
-    let resp = await generateAIArticleContent("39");
+    let resp = await generateAIArticles({
+      domains: ["Math", "Physics", "Chemistry"],
+      limit: 10,
+      level: "beginner"
+    });
     setContent(resp);
   }
 

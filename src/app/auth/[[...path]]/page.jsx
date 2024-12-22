@@ -192,7 +192,7 @@ export default function Auth() {
         //   // sign up successful
         // } else {
         //   // sign in successful
-        // }
+        // }ww
         router.replace("/feed")
       } else if (response.status === "SIGN_IN_UP_NOT_ALLOWED") {
         // the reason string is a user friendly message

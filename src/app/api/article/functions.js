@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma"
 import fs from "fs/promises"
 import { getUserById } from "../user/functions"
 
-export async function generateAIArticles(domains = [], limit = 10, level = "beginner") {
+export async function generateAIArticles({ domains = [], limit = 10, level = "beginner" }) {
   try {
     const simmilarTopics = await prisma.article.findMany({
       where: {
@@ -74,7 +74,7 @@ export async function getArticleById(id) {
 
 }
 
-export async function generateAIArticleContent(id, isAPI = false) {
+export async function generateAIArticleContent({ id, isAPI = false }) {
   let article = await prisma.article.findUnique({
     where: {
       id: id

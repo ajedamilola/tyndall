@@ -19,7 +19,15 @@ export async function storeuser({ email, id, provider }) {
       data: {
         email,
         provider,
-        superTokenId: id
+        superTokenId: id,
+        telementry: {
+          connect: {
+            likedArticles: [],
+            viewedArticles: [],
+            commentedArticles: [],
+            dislikedArticles: []
+          }
+        }
       }
     })
   }
@@ -120,12 +128,20 @@ export async function generateMoreArticles(id) {
   }
 }
 
-export async function toggleArticleLike(articleId, userId) {
+export async function toggleArticleLike({ articleId, userId }) {
   try {
     const article = await prisma.article.findUnique({
       where: { id: articleId },
     });
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
 
+    const telementry = await prisma.telementry.findUnique({
+      whereere: {
+        id: user.telementryId
+      }
+    })
     if (article.likes.includes(userId)) {
       // Remove the like
       await prisma.article.update({
@@ -136,6 +152,16 @@ export async function toggleArticleLike(articleId, userId) {
           }
         },
       });
+
+      await prisma.telementry.update({
+        where: {
+          id: user.telementryId
+        }, data: {
+          likedArticles: {
+            set: telementry.likedArticles.filter(id => id !== articleId)
+          }
+        }
+      })
     } else {
       // Add the like
       await prisma.article.update({
@@ -146,6 +172,16 @@ export async function toggleArticleLike(articleId, userId) {
           }
         },
       });
+
+      await prisma.telementry.update({
+        where: {
+          id: user.telementryId
+        }, data: {
+          likedArticles: {
+            push: articleId
+          }
+        }
+      })
     }
 
     // Refetch the article to get the updated likes
@@ -161,7 +197,7 @@ export async function toggleArticleLike(articleId, userId) {
 }
 
 
-export async function createComment(articleId, userId, content) {
+export async function createComment({ articleId, userId, content }) {
   try {
     const newComment = await prisma.comment.create({
       data: {
@@ -169,6 +205,17 @@ export async function createComment(articleId, userId, content) {
         userId,
         content,
       },
+    });
+    const user = await getUserById(userId)
+    await prisma.telementry.update({
+      where: {
+        id: user.telementryId,
+        data: {
+          commentedArticles: {
+            push: articleId
+          }
+        }
+      }
     });
     return newComment;
   } catch (error) {
@@ -191,4 +238,85 @@ export async function getCommentsByArticleId(articleId) {
     console.error("Error fetching comments:", error);
     return { err: "An error occured please kindly try again" }
   }
+}
+
+export async function suggestArticles({
+  userId, range = 100, amount = 10
+}) {
+  const user = await getUserById(userId);
+  let telementry = await prisma.telementry.findFirst({
+    where: {
+      userId
+    },
+    include: {
+      article: true
+    }
+  })
+  if (!telementry) {
+    telementry = await prisma.telementry.create({
+      data: {
+        userId,
+        likedArticles: [],
+        viewedArticles: [],
+        commentedArticles: [],
+        dislikedArticles: []
+      }
+    })
+  }
+  const { commentedArticles, dislikedArticles, likedArticles } = telementry
+
+  //Seekout our candidate articles
+  const articles = await prisma.article.findMany({
+    where: {
+      id: {
+        in: [...likedArticles, ...commentedArticles],
+        notIn: [...dislikedArticles]
+      }
+    },
+    orderBy: {
+      created_at: "desc"
+    },
+    take: range
+  })
+  //Returning shuffled articles simply use random algorithm to sort the latest articles for the user
+  const shuffled = articles.sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, amount);
+  return { articles: selected };
+
+
+}
+
+export async function submitFeedback({ userId, content, article, positive }) {
+  //Sha warn the user if there is previous feedback it will be updated
+  const feedback = await prisma.feedback.findFirst({
+    where: {
+      userSuperTokenId: userId,
+      articleId: article.id
+    }
+  })
+  if (feedback) {
+
+    await prisma.feedback.update({
+      where: {
+        id: feedback.id
+      },
+      data: {
+        userSuperTokenId: userId,
+        articleId: article.id,
+        content: feedback,
+        positive,
+      }
+    })
+  } else {
+
+    await prisma.feedback.create({
+      data: {
+        userSuperTokenId: userId,
+        articleId: article.id,
+        content: feedback,
+        positive,
+      }
+    })
+  }
+  return { msg: "Feecback sent" };
 }
