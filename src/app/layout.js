@@ -2,6 +2,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { SuperTokensProvider } from "./components/supertokensProvider";
 
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
+
 const inter = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],

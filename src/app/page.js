@@ -3,6 +3,9 @@ import AuthRedirect from "./components/authRedirect";
 import Logout from "./components/logout";
 import SessionValidator from "./components/sessionValidator";
 
+
+
+
 export default function Home() {
   //OPTIMIZE: API will be used to get ssr for dynamic data
   return (

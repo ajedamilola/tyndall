@@ -1,6 +1,6 @@
 "use server"
 
-import { model, trimResponse } from "@/lib/ai"
+import { anthropic } from "@/lib/ai"
 import prisma from "@/lib/prisma"
 import fs from "fs/promises"
 import { getUserById } from "../user/functions"
@@ -34,8 +34,8 @@ export async function generateAIArticles(domains = [], limit = 10, level = "begi
     }))
 
     console.time("Duration")
-    const response = await model.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+    const response = await anthropic.messages.create({
+      model: process.env.LITE_MODEL,
       max_tokens: 8192,
       temperature: 0,
       system: "You are part of a education resource hub , you are a bot generate  highly educative articles. Generate educational articles that a researcher or student might want to read based on the fields, areas and domain you are given. so the response will be an array Article objects. Each article object has the following fields: title,summary,tags,category. Your response should be purely in JSON. if you find any sexually explicit, illegal content or come across any error or issue repond with a object with an error key stating the nature of your error. Let your JSON Be Minnified and no line breaks",
@@ -74,17 +74,79 @@ export async function getArticleById(id) {
 
 }
 
-export async function generateArticleContent(id) {
-  const article = await prisma.article.findUnique({
+export async function generateAIArticleContent(id, isAPI = false) {
+  let article = await prisma.article.findUnique({
     where: {
       id: id
+    },
+    select: {
+      title: true,
+      fields: true,
+      category: true,
+      summary: true,
+      id: true
     }
   });
-  const chat = await model.pro.generateContent([
-    {
-      text: ""
-    }
-  ])
+  if (article) {
+    await prisma.article.update({
+      where: {
+        id
+      },
+      data: {
+        contentStatus: "Generating"
+      }
+    })
+  }
+  try {
+    const response = await anthropic.messages.create({
+      model: process.env.PRO_MODEL,
+      max_tokens: 8192,
+      temperature: 0,
+      system: "\nYou are an article content generator that is part of an educational platform. you generate content that are educative, highly-educative and human-like.  you will be provided the basic details about the article and you will generate the contents of that topic in html format and properly styled with tailwindcss. make sure you put italics, bolds, basic colouration where neccesary. ensure your articles feels like it is well researched and well thought-out and contains links to external articles to help the reader right inside the content. Let the content be extensive.  let your response will be in JSON format with two keys content, references. the content key is your html content and the references is an array of containing two keys: title and link. your output JSON and HTML must be minnified and contain no line breaks.\n",
+      messages: [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": `
+              Topic: ${article.title}
+              Summary: ${article.summary}
+              Category: ${article.category}
+              Fields: ${article.fields.join(",")}
+              `
+            }
+          ]
+        }
+      ]
+    });
+    let rawText = response.content[0].text;
+    await fs.writeFile("response.json", rawText);
+    const aiArticle = JSON.parse(rawText);
+    article = await prisma.article.update({
+      where: {
+        id: article.id
+      },
+      data: {
+        content: aiArticle.content,
+        references: aiArticle.references,
+        contentStatus: "Generated"
+      }
+    })
+    return isAPI ? true : { article }
+  } catch (error) {
+    console.log(error)
+    await prisma.article.update({
+      where: {
+        id: id
+      },
+      data: {
+        contentStatus: "NotGenerated"
+      }
+    })
+    return isAPI ? false : { err: "Unable to generate at this time" }
+  }
+
 }
 
 export async function getArticles({ userId, page = 1 }) {
@@ -127,3 +189,5 @@ export async function getArticles({ userId, page = 1 }) {
     return { err: "Unable to fetch articles at this time" }
   }
 }
+
+//This is for generating the content of multiple articles
