@@ -29,6 +29,7 @@ export const frontendConfig = () => {
           return true;
         },
         async getRedirectionURL(context) {
+          console.log("Reaching Here");
           if (context.action === "SUCCESS" && context.newSessionCreated) {
             // called on a successful sign in / up. Where should the user go next?
             let redirectToPath = context.redirectToPath;
@@ -38,10 +39,10 @@ export const frontendConfig = () => {
             }
             if (context.createdNewUser) {
               // user signed up
-              return "/dashboard"
+              return "/feed"
             } else {
               // user signed in
-              return "/dashboard"
+              return "/feed"
             }
           } else if (context.action === "TO_AUTH") {
             // called when the user is not authenticated and needs to be redirected to the auth page.
