@@ -10,7 +10,7 @@ datasource db {
 model User {
   superTokenId         String             @id
   name                 String             @default("")
-  email                String
+  email                String             @unique
   provider             CredentialProvider
   preferences          String[]           @default([])
   level                Level              @default(beginner)
