@@ -118,14 +118,17 @@ function Page() {
         <div className='flex flex-col items-center lg:items-start space-y-4'>
           <Avatar className='h-12 w-12'>
             <AvatarImage src='/placeholder.svg?height=48&width=48' />
-            <AvatarFallback>JD</AvatarFallback>
+            <AvatarFallback className='text-black'>JD</AvatarFallback>
           </Avatar>
           <div className='hidden lg:block'>
-            <h2 className='font-bold'>John Doe</h2>
+            <h2 className='font-bold '>John Doe</h2>
             <p className='text-gray-500'>@johndoe</p>
           </div>
-        </div>
-
+        </div>{" "}
+        {/* <div className='flex items-center gap-2'>
+          <div className='w-8 h-8 rounded-full bg-[#00B8A9]' />
+          <span className='text-xl font-semibold font-manrope'>Tyndall</span>
+        </div> */}
         <nav className='mt-8 space-y-4 flex-1'>
           <Button
             variant='ghost'
@@ -149,7 +152,6 @@ function Page() {
             <span className='hidden lg:inline'>Resources</span>
           </Button>
         </nav>
-
         <div className='mt-auto pt-4'>
           <Button
             variant='ghost'
@@ -165,8 +167,14 @@ function Page() {
       <div className='flex-1 border-r border-gray-800 pb-16 md:pb-0'>
         <div className='sticky top-0 bg-[#1c1c1c]/80 backdrop-blur-sm z-10'>
           <div className='flex justify-between p-4 border-b border-gray-800'>
-            <h1 className='text-xl font-bold'>For you</h1>
-            <h1 className='text-xl font-bold text-gray-500'>Following</h1>
+            <div className='flex items-center gap-2'>
+              <div className='w-8 h-8 rounded-full bg-[#00B8A9]' />
+              <span className='text-xl font-semibold font-manrope'>
+                Tyndall
+              </span>
+            </div>
+
+            {/* <h1 className='text-xl font-bold text-gray-500'>Following</h1> */}
           </div>
 
           <div className='p-4'>
