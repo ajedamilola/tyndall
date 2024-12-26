@@ -40,7 +40,7 @@ function SideBar({ user }) {
           <AvatarFallback className='text-black'>{user?.name && user?.name[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className='hidden lg:block'>
-          {user?.name ? <h2 className='font-bold '>{user?.name}</h2> : <Skeleton className={"w-[120px] h-full"} />}
+          {user?.name ? <h2 className='font-bold '>{user?.name}s</h2> : <Skeleton className={"w-[120px] h-full"} />}
           {/* <p className='text-gray-500'>@johndoe</p> */}
         </div>
       </div>{" "}

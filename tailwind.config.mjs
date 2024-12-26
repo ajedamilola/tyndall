@@ -73,27 +73,27 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
   important: true,
-  // safelist: [
-  //   // Pattern approach (recommended for production)
-  //   {
-  //     pattern: /^(bg|text)-(transparent|current|black|white|rose|pink|fuchsia|purple|violet|indigo|blue|sky|cyan|teal|emerald|green|lime|yellow|amber|orange|red|gray|slate|zinc|neutral|stone|primary|secondary)(-\d+)?$/,
-  //   },
+  safelist: [
+    // Pattern approach (recommended for production)
+    {
+      pattern: /^(bg|text)-(transparent|current|black|white|rose|pink|fuchsia|purple|violet|indigo|blue|sky|cyan|teal|emerald|green|lime|yellow|amber|orange|red|gray|slate|zinc|neutral|stone|primary|secondary)(-\d+)?$/,
+    },
 
-  //   // Alternative: Explicit patterns for more control
-  //   {
-  //     pattern: /^bg-(red|yellow|green|blue|indigo|purple|pink|gray|white|black)(-[1-9]00)?$/,
-  //   },
-  //   {
-  //     pattern: /^text-(red|yellow|green|blue|indigo|purple|pink|gray|white|black)(-[1-9]00)?$/,
-  //   },
+    // Alternative: Explicit patterns for more control
+    {
+      pattern: /^bg-(red|yellow|green|blue|indigo|purple|pink|gray|white|black)(-[1-9]00)?$/,
+    },
+    {
+      pattern: /^text-(red|yellow|green|blue|indigo|purple|pink|gray|white|black)(-[1-9]00)?$/,
+    },
 
-  //   // Or use the helper function to generate all possible combinations
-  //   ...generateColorPatterns('bg'),
-  //   ...generateColorPatterns('text'),
+    // Or use the helper function to generate all possible combinations
+    ...generateColorPatterns('bg'),
+    ...generateColorPatterns('text'),
 
-  //   // Don't forget opacity modifiers if needed
-  //   {
-  //     pattern: /^(bg|text)-opacity-/,
-  //   }
-  // ],
+    // Don't forget opacity modifiers if needed
+    {
+      pattern: /^(bg|text)-opacity-/,
+    }
+  ],
 };

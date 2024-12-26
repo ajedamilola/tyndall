@@ -260,11 +260,12 @@ export async function suggestArticles({
   const user = await getUserById(userId);
   let telementry = await prisma.telementry.findFirst({
     where: {
-      userId
+      users: {
+        some: {
+          superTokenId: userId
+        }
+      }
     },
-    include: {
-      article: true
-    }
   })
   if (!telementry) {
     telementry = await prisma.telementry.create({
@@ -285,6 +286,17 @@ export async function suggestArticles({
       id: {
         in: [...likedArticles, ...commentedArticles],
         notIn: [...dislikedArticles]
+      }
+    },
+    select: {
+      title: true,
+      summary: true,
+      likes: true,
+      id: true,
+      comments: {
+        select: {
+          id: true
+        }
       }
     },
     orderBy: {

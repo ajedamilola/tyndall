@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 import SideBar from '../components/SideBar'
 import parse from "html-react-parser"
 import SessionValidator from '@/app/components/sessionValidator'
-import { createComment, getUserById } from '@/app/api/user/functions'
+import { createComment, getUserById, suggestArticles } from '@/app/api/user/functions'
 import Link from 'next/link'
 import { Textarea } from '@/components/ui/textarea'
 import { Block } from 'notiflix'
@@ -13,14 +13,21 @@ import { toast } from 'sonner'
 import dayjs from 'dayjs'
 import { BrainCircuit, MessageCircle } from 'lucide-react'
 import MobileNav from '@/app/components/mobileNav'
+import Tweet from '@/app/components/tweet'
 
 function ShowArticle({ article }) {
   SessionValidator({})
   const [user, setUser] = useState({})
   const [comments, setComments] = useState(article.comments)
   const [newComment, setNewComment] = useState("")
+  const [simmilar, setSimmilar] = useState([])
   async function getUserData() {
     const data = await getUserById(window.userId)
+    setSimmilar(await suggestArticles({
+      userId: window.userId,
+      articleId: article.id,
+      amount: 5
+    }))
     setUser(data)
   }
   useEffect(() => {
@@ -120,6 +127,13 @@ function ShowArticle({ article }) {
             </div>
           </div>}
 
+        <hr className='opacity-10 mt-5' />
+        <h1 className="text-lg p-3">See Reccomended Articles</h1>
+        <div className="grid lg:grid-cols-5 md:grid-cols-2 grid-cols-1 gap-4">
+          {simmilar?.articles?.map((article, index) => {
+            return <Tweet tweet={article} key={index} />
+          })}
+        </div>
       </div>
 
       <MobileNav />
