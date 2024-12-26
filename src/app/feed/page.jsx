@@ -1,26 +1,28 @@
 "use client";
+import React, { useEffect, useState } from "react";
 import { generateMoreArticles } from "@/app/api/user/functions";
 import Logout from "@/app/components/logout";
 import SessionValidator from "@/app/components/sessionValidator";
-import React, { useEffect, useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Bell,
-  Bookmark,
   Home,
   Mail,
   Search,
-  User,
-  Users,
-  X,
   MoreHorizontal,
   Heart,
   MessageCircle,
-  Repeat2,
   Share,
-  Plus,
-  FileText,
-  Settings,
-  HelpCircle,
   LogOut,
   Star,
   Book,
@@ -28,15 +30,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
 import {
   generateAIArticleContent,
   generateAIArticles,
 } from "../api/article/functions";
 import { useInView } from "react-intersection-observer";
+import { signOut } from "supertokens-web-js/recipe/session";
 
 function Page() {
   const [content, setContent] = useState("");
+  const [openLogOutModal, setOpenLogOutModal] = useState(false);
   async function act() {
     setContent("loading");
     let resp = await generateAIArticles({
@@ -47,7 +50,13 @@ function Page() {
     setContent(resp);
   }
 
-  // This is just the whole idea of the Intersection observer...I really don't knw why my own content is not fetching sha...But this is the way it works sha....Also check the footer section for mobile..make we see how e go be
+  async function handleLogout() {
+    await signOut();
+    window.location.href = "/auth"; // or to wherever your logic page is
+  }
+
+  // This is just the whole idea of the Intersection observer...I really don't knw why my own content is not fetching sha...But this is the way it works sha....
+  // Also i created the Loader component for the loading state...Check the Loader.jsx file...
 
   const tweets = [
     {
@@ -518,218 +527,238 @@ function Page() {
 
     if (nextBatch <= tweets.length) {
       setDisplayedTweets(nextBatch);
+    } else {
+      setDisplayedTweets(tweets.length);
     }
   };
 
   useEffect(() => {
     if (inView) {
-      console.log("Tweet is in view");
+      console.log("I don enter!");
       fetchNextPage();
     }
   }, [inView, displayedTweets]);
 
   //  <Logout />;
   return (
-    <div className='flex min-h-screen bg-[#1c1c1c] text-white relative'>
-      {/* Left Sidebar - Hidden on mobile, icon-only on tablet, full on desktop */}
-      <div className='hidden md:flex flex-col lg:w-64 md:w-16 p-4 border-r border-gray-800 sticky top-0 h-screen'>
-        <div className='flex flex-col items-center lg:items-start space-y-4'>
-          <Avatar className='h-12 w-12'>
-            <AvatarImage src='/placeholder.svg?height=48&width=48' />
-            <AvatarFallback className='text-black'>JD</AvatarFallback>
-          </Avatar>
-          <div className='hidden lg:block'>
-            <h2 className='font-bold '>John Doe</h2>
-            <p className='text-gray-500'>@johndoe</p>
+    <>
+      <div className='flex min-h-screen bg-[#1c1c1c] text-white relative'>
+        {/* Left Sidebar - Hidden on mobile, icon-only on tablet, full on desktop */}
+        <div className='hidden md:flex flex-col lg:w-64 md:w-16 p-4 border-r border-gray-800 sticky top-0 h-screen'>
+          <div className='flex flex-col items-center lg:items-start space-y-4'>
+            <Avatar className='h-12 w-12'>
+              <AvatarImage src='/placeholder.svg?height=48&width=48' />
+              <AvatarFallback className='text-black'>JD</AvatarFallback>
+            </Avatar>
+            <div className='hidden lg:block'>
+              <h2 className='font-bold '>John Doe</h2>
+              <p className='text-gray-500'>@johndoe</p>
+            </div>
+          </div>{" "}
+          <nav className='mt-8 space-y-4 flex-1'>
+            <Button
+              variant='ghost'
+              className='w-full justify-start gap-4 text-xl hover:text-[#00b8aa]'
+            >
+              <Home className='h-6 w-6' />
+              <span className='hidden lg:inline'>Home</span>
+            </Button>
+            <Button
+              variant='ghost'
+              className='w-full justify-start gap-4 text-xl hover:text-[#00b8aa]'
+            >
+              <Star className='h-6 w-6' />
+              <span className='hidden lg:inline'>Favorite</span>
+            </Button>
+            <Button
+              variant='ghost'
+              className='w-full justify-start gap-4 text-xl hover:text-[#00b8aa]'
+            >
+              <Book className='h-6 w-6' />
+              <span className='hidden lg:inline'>Resources</span>
+            </Button>
+          </nav>
+          <div className='mt-auto pt-4'>
+            <Button
+              variant='ghost'
+              className='w-full justify-start gap-4 text-xl hover:text-red-500'
+              onClick={() => setOpenLogOutModal(true)}
+            >
+              <LogOut className='h-6 w-6' />
+              <span className='hidden lg:inline'>Logout</span>
+            </Button>
           </div>
-        </div>{" "}
-        {/* <div className='flex items-center gap-2'>
-          <div className='w-8 h-8 rounded-full bg-[#00B8A9]' />
-          <span className='text-xl font-semibold font-manrope'>Tyndall</span>
-        </div> */}
-        <nav className='mt-8 space-y-4 flex-1'>
-          <Button
-            variant='ghost'
-            className='w-full justify-start gap-4 text-xl hover:text-[#00b8aa]'
-          >
+        </div>
+
+        {/* Main Content */}
+        <div className='flex-1 border-r border-gray-800 pb-16 md:pb-0'>
+          <div className='sticky top-0 bg-[#1c1c1c]/80 backdrop-blur-sm z-10'>
+            <div className='flex justify-between p-4 border-b border-gray-800'>
+              <div className='flex items-center gap-2'>
+                <div className='w-8 h-8 rounded-full bg-[#00B8A9]' />
+                <span className='text-xl font-semibold font-manrope'>
+                  Tyndall
+                </span>
+              </div>
+            </div>
+
+            <div className='p-4'>
+              <div className='relative'>
+                <Search className='absolute left-3 top-3.5 h-5 w-5 text-gray-400' />
+
+                <Input
+                  placeholder='What content would you like?'
+                  className='pl-10 bg-gray-700 py-6 border-gray-800 rounded-lg w-full placeholder:text-gray-200'
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className='divide-y divide-gray-800'>
+            <div className='p-4 border-b border-gray-800'>
+              <div className='space-y-4'>
+                <h2 className='text-2xl font-bold'>
+                  Create beautiful images with Grok 2
+                </h2>
+                <p className='text-gray-400'>
+                  Transform your ideas into stunning visuals with our newest AI
+                  assistant, powered by X.
+                </p>
+                <Button className='bg-white text-black hover:bg-gray-200'>
+                  Get Grok
+                </Button>
+              </div>
+            </div>
+
+            <div className='pb-16 md:pb-0'>
+              {tweets.slice(0, displayedTweets).map((tweet) => (
+                <Tweet key={tweet.id} tweet={tweet} />
+              ))}
+
+              <div ref={ref} className='flex justify-center p-4'>
+                {inView && displayedTweets < tweets.length && (
+                  <div className='size-20 border-2 border-[#00b8aa] border-t-transparent rounded-full animate-spin' />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Sidebar - Hidden on mobile and tablet */}
+        <div className='hidden lg:block w-80 p-4'>
+          <div className='sticky top-0 space-y-4'>
+            <div className='bg-gray-800 rounded-xl p-4'>
+              <h2 className='text-xl font-bold mb-4'>Suggested Tags</h2>
+              <div className='flex flex-wrap gap-2'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='rounded-lg text-black/85'
+                >
+                  #TechNews
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='rounded-lg text-black/85'
+                >
+                  #WebDev
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='rounded-lg text-black/85'
+                >
+                  #AI
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='rounded-lg text-black/85'
+                >
+                  #Programming
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='rounded-lg text-black/85'
+                >
+                  #JavaScript
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='rounded-lg text-black/85'
+                >
+                  #ReactJS
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='rounded-lg text-black/85'
+                >
+                  #MachineLearning
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='rounded-lg text-black/85'
+                >
+                  #DataScience
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='rounded-lg text-black/85'
+                >
+                  #CyberSecurity
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='rounded-lg text-black/85'
+                >
+                  #CloudComputing
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Bottom Navigation - Visible only on mobile */}
+        <div className='fixed bottom-0 left-0 right-0 bg-[#1c1c1c] border-t border-gray-800 p-2 flex justify-around md:hidden'>
+          <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
             <Home className='h-6 w-6' />
-            <span className='hidden lg:inline'>Home</span>
           </Button>
-          <Button
-            variant='ghost'
-            className='w-full justify-start gap-4 text-xl hover:text-[#00b8aa]'
-          >
-            <Star className='h-6 w-6' />
-            <span className='hidden lg:inline'>Favorite</span>
+          <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
+            <Search className='h-6 w-6' />
           </Button>
-          <Button
-            variant='ghost'
-            className='w-full justify-start gap-4 text-xl hover:text-[#00b8aa]'
-          >
-            <Book className='h-6 w-6' />
-            <span className='hidden lg:inline'>Resources</span>
+          <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
+            <Bell className='h-6 w-6' />
           </Button>
-        </nav>
-        <div className='mt-auto pt-4'>
-          <Button
-            variant='ghost'
-            className='w-full justify-start gap-4 text-xl hover:text-red-500'
-          >
-            <LogOut className='h-6 w-6' />
-            <span className='hidden lg:inline'>Logout</span>
+          <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
+            <Mail className='h-6 w-6' />
           </Button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className='flex-1 border-r border-gray-800 pb-16 md:pb-0'>
-        <div className='sticky top-0 bg-[#1c1c1c]/80 backdrop-blur-sm z-10'>
-          <div className='flex justify-between p-4 border-b border-gray-800'>
-            <div className='flex items-center gap-2'>
-              <div className='w-8 h-8 rounded-full bg-[#00B8A9]' />
-              <span className='text-xl font-semibold font-manrope'>
-                Tyndall
-              </span>
-            </div>
-          </div>
-
-          <div className='p-4'>
-            <div className='relative'>
-              <Search className='absolute left-3 top-3.5 h-5 w-5 text-gray-400' />
-
-              <Input
-                placeholder='What content would you like?'
-                className='pl-10 bg-gray-700 py-6 border-gray-800 rounded-lg w-full placeholder:text-gray-200'
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className='divide-y divide-gray-800'>
-          <div className='p-4 border-b border-gray-800'>
-            <div className='space-y-4'>
-              <h2 className='text-2xl font-bold'>
-                Create beautiful images with Grok 2
-              </h2>
-              <p className='text-gray-400'>
-                Transform your ideas into stunning visuals with our newest AI
-                assistant, powered by X.
-              </p>
-              <Button className='bg-white text-black hover:bg-gray-200'>
-                Get Grok
-              </Button>
-            </div>
-          </div>
-
-          <div className='pb-16 md:pb-0'>
-            {tweets.map((tweet) => (
-              <Tweet
-                key={tweet.id}
-                ref={ref}
-                tweet={tweets.slice(0, displayedTweets)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Right Sidebar - Hidden on mobile and tablet */}
-      <div className='hidden lg:block w-80 p-4'>
-        <div className='sticky top-0 space-y-4'>
-          <div className='bg-gray-800 rounded-xl p-4'>
-            <h2 className='text-xl font-bold mb-4'>Suggested Tags</h2>
-            <div className='flex flex-wrap gap-2'>
-              <Button
-                variant='outline'
-                size='sm'
-                className='rounded-lg text-black/85'
-              >
-                #TechNews
-              </Button>
-              <Button
-                variant='outline'
-                size='sm'
-                className='rounded-lg text-black/85'
-              >
-                #WebDev
-              </Button>
-              <Button
-                variant='outline'
-                size='sm'
-                className='rounded-lg text-black/85'
-              >
-                #AI
-              </Button>
-              <Button
-                variant='outline'
-                size='sm'
-                className='rounded-lg text-black/85'
-              >
-                #Programming
-              </Button>
-              <Button
-                variant='outline'
-                size='sm'
-                className='rounded-lg text-black/85'
-              >
-                #JavaScript
-              </Button>
-              <Button
-                variant='outline'
-                size='sm'
-                className='rounded-lg text-black/85'
-              >
-                #ReactJS
-              </Button>
-              <Button
-                variant='outline'
-                size='sm'
-                className='rounded-lg text-black/85'
-              >
-                #MachineLearning
-              </Button>
-              <Button
-                variant='outline'
-                size='sm'
-                className='rounded-lg text-black/85'
-              >
-                #DataScience
-              </Button>
-              <Button
-                variant='outline'
-                size='sm'
-                className='rounded-lg text-black/85'
-              >
-                #CyberSecurity
-              </Button>
-              <Button
-                variant='outline'
-                size='sm'
-                className='rounded-lg text-black/85'
-              >
-                #CloudComputing
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Bottom Navigation - Visible only on mobile */}
-      <div className='fixed bottom-0 left-0 right-0 bg-[#1c1c1c] border-t border-gray-800 p-2 flex justify-around md:hidden'>
-        <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
-          <Home className='h-6 w-6' />
-        </Button>
-        <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
-          <Search className='h-6 w-6' />
-        </Button>
-        <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
-          <Bell className='h-6 w-6' />
-        </Button>
-        <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
-          <Mail className='h-6 w-6' />
-        </Button>
-      </div>
-    </div>
+      <AlertDialog open={openLogOutModal} onOpenChange={setOpenLogOutModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ae you sure you wanna Logout?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleLogout}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 
@@ -752,22 +781,41 @@ function Tweet({ tweet, ref }) {
                 {tweet.handle} · {tweet.timestamp}
               </span>
             </div>
+
             <Button variant='ghost' size='icon' className='text-gray-500'>
               <MoreHorizontal className='h-5 w-5' />
             </Button>
           </div>
+
           <p className='mt-2 text-gray-200'>{tweet.content}</p>
+
           <div className='flex justify-between mt-4 text-gray-500 max-w-md'>
-            <Button variant='ghost' size='sm' className='hover:text-[#00b8aa]'>
+            <Button
+              variant='ghost'
+              size='sm'
+              title='comments'
+              className='hover:text-[#00b8aa]'
+            >
               <MessageCircle className='h-4 w-4 mr-2' />
               {tweet.replies}
             </Button>
 
-            <Button variant='ghost' size='sm' className='hover:text-red-500'>
+            <Button
+              variant='ghost'
+              size='sm'
+              title='likes'
+              className='hover:text-red-500'
+            >
               <Heart className='h-4 w-4 mr-2' />
               {tweet.likes}
             </Button>
-            <Button variant='ghost' size='sm' className='hover:text-[#00b8aa]'>
+
+            <Button
+              variant='ghost'
+              size='sm'
+              className='hover:text-[#00b8aa]'
+              title='share'
+            >
               <Share className='h-4 w-4' />
             </Button>
           </div>

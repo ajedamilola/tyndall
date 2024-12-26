@@ -131,11 +131,11 @@ const OnboardingModal = ({ onComplete }) => {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className='fixed inset-0 z-50 flex items-center justify-center bg-black/50'
+      className='fixed inset-0 z-50 flex items-center justify-center bg-[#1c1c1c]'
     >
       <div
         className={cn(
-          "relative w-[95%] lg:max-w-xl bg-white rounded-[20px] shadow-xl",
+          "relative w-[95%] lg:max-w-xl bg-gray-100 rounded-[20px] shadow-xl",
           {
             "lg:max-w-sm ": step === 0,
             "max-w-xl": step === 1,
@@ -252,7 +252,7 @@ const OnboardingModal = ({ onComplete }) => {
               <Button
                 onClick={handleNext}
                 disabled={!canProceed()}
-                className='w-full bg-emerald-600  py-0 text-white'
+                className='w-full bg-teal-700 hover:border-teal-800  py-2 text-white'
               >
                 {step === 1 ? "Complete Setup" : "Next"}
               </Button>
