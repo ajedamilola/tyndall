@@ -21,9 +21,8 @@ export async function storeuser({ email, id, provider }) {
         provider,
         superTokenId: id,
         telementry: {
-          connect: {
+          create: {
             likedArticles: [],
-            viewedArticles: [],
             commentedArticles: [],
             dislikedArticles: []
           }
@@ -35,7 +34,7 @@ export async function storeuser({ email, id, provider }) {
 }
 
 export async function editUser({ id, preferences, name, level }) {
-
+  console.log(level || former.level)
   try {
     const former = await getUserById(id);
     const user = await prisma.user.update({
@@ -45,7 +44,7 @@ export async function editUser({ id, preferences, name, level }) {
       data: {
         preferences: preferences || former.preferences,
         name: name || former.name,
-        level: level || former.level
+        level: level || former.level || "beginner"
       }
     })
     return user;
@@ -104,12 +103,13 @@ export async function getArticleFeed({
 export async function generateMoreArticles(id) {
   const user = await getUserById(id);
   const aiArticles = await generateAIArticles(user.preferences, 50, user.level);
-  if (!aiArticles.error) {
+  console.log(aiArticles)
+  if (!aiArticles.err) {
     console.log(aiArticles.articles.map(a => ({
       title: a.title,
       summary: a.summary,
       fields: a.tags,
-      category: a.category
+      category: a.category,
     })))
     const articles = await prisma.article.createManyAndReturn({
       skipDuplicates: true,
@@ -118,7 +118,8 @@ export async function generateMoreArticles(id) {
         summary: a.summary,
         fields: a.tags,
         category: a.category,
-        content: ""
+        content: "",
+        level: user.level
       }))
     })
 
@@ -134,11 +135,11 @@ export async function toggleArticleLike({ articleId, userId }) {
       where: { id: articleId },
     });
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { superTokenId: userId },
     });
 
     const telementry = await prisma.telementry.findUnique({
-      whereere: {
+      where: {
         id: user.telementryId
       }
     })

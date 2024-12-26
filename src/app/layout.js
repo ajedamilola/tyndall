@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
           className={`${inter.variable} ${interMono.variable} antialiased font-inter`}
         >
           {children}
-          <Toaster position='top-right' />
+          <Toaster position='top-right' richColors />
         </body>
       </SuperTokensProvider>
     </html>

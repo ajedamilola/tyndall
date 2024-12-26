@@ -51,6 +51,7 @@ model Article {
   references    Json          @default("[]")
   category      String        @default("general")
   fields        String[]      @default([])
+  level         String?
   content       String
   ai            Boolean       @default(true)
   created_at    DateTime      @default(now())

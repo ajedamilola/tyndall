@@ -20,6 +20,7 @@ import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { set } from "mongoose";
+import { Loading } from "notiflix";
 // Testimonial data
 
 export default function Auth() {
@@ -229,7 +230,9 @@ export default function Auth() {
 
   async function handleGoogleCallback() {
     //TODO: Micheali Micheali 📢📢📢📢📢📢📢📢📢📢 DO the state for loading. this is used to verify the Google Login
+    if (!window.location.href.includes("callback")) return
     try {
+      Loading.standard("Signing in...");
       const response = await signInAndUp();
 
       if (response.status === "OK") {
@@ -264,6 +267,8 @@ export default function Auth() {
       } else {
         toast.message("Oops! Something went wrong.");
       }
+    } finally {
+      Loading.remove()
     }
   }
 
@@ -381,8 +386,8 @@ export default function Auth() {
                     ? "Loading..."
                     : "Sign In"
                   : loadingForSignUp
-                  ? "Loading..."
-                  : "Sign Up"}{" "}
+                    ? "Loading..."
+                    : "Sign Up"}{" "}
               </Button>
 
               {!isSignIn && (
@@ -466,11 +471,10 @@ export default function Auth() {
                 <button
                   key={index}
                   onClick={() => setCurrentTestimonial(index)}
-                  className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                    index === currentTestimonial
-                      ? "bg-[#00B8A9]"
-                      : "bg-gray-600"
-                  }`}
+                  className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === currentTestimonial
+                    ? "bg-[#00B8A9]"
+                    : "bg-gray-600"
+                    }`}
                 />
               ))}
             </div>
