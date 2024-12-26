@@ -2,7 +2,7 @@
 import { generateMoreArticles } from "@/app/api/user/functions";
 import Logout from "@/app/components/logout";
 import SessionValidator from "@/app/components/sessionValidator";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Bell,
   Bookmark,
@@ -29,12 +29,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-// Mock data for tweets
-
 import {
   generateAIArticleContent,
   generateAIArticles,
 } from "../api/article/functions";
+import { useInView } from "react-intersection-observer";
 
 function Page() {
   const [content, setContent] = useState("");
@@ -47,6 +46,8 @@ function Page() {
     });
     setContent(resp);
   }
+
+  // This is just the whole idea of the Intersection observer...I really don't knw why my own content is not fetching sha...But this is the way it works sha....Also check the footer section for mobile..make we see how e go be
 
   const tweets = [
     {
@@ -109,7 +110,424 @@ function Page() {
       replies: 234,
       avatar: "/placeholder.svg?height=40&width=40",
     },
+    {
+      id: 6,
+      author: "Cloud Expert",
+      handle: "@cloudguru",
+      content:
+        "Serverless architecture is revolutionizing how we build applications. Here's why you should consider it for your next project.",
+      timestamp: "10h",
+      likes: 567,
+      retweets: 123,
+      replies: 45,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 7,
+      author: "Security Now",
+      handle: "@securitynow",
+      content:
+        "Critical vulnerability found in popular npm package. Update your dependencies ASAP!",
+      timestamp: "11h",
+      likes: 1876,
+      retweets: 902,
+      replies: 234,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 8,
+      author: "Mobile Dev Tips",
+      handle: "@mobiledevtips",
+      content:
+        "10 performance optimization techniques for React Native apps that you need to know 📱",
+      timestamp: "12h",
+      likes: 654,
+      retweets: 234,
+      replies: 89,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 9,
+      author: "Database Pro",
+      handle: "@dbpro",
+      content:
+        "MongoDB vs PostgreSQL: Making the right choice for your project. Thread 🧵",
+      timestamp: "13h",
+      likes: 987,
+      retweets: 432,
+      replies: 156,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 10,
+      author: "Frontend Focus",
+      handle: "@frontendfocus",
+      content:
+        "New CSS Container Queries are changing the game for responsive design. Here's how to use them effectively.",
+      timestamp: "14h",
+      likes: 1432,
+      retweets: 567,
+      replies: 234,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 11,
+      author: "Python Master",
+      handle: "@pythonmaster",
+      content:
+        "Async/await patterns in Python that will make your code more efficient and readable 🐍",
+      timestamp: "15h",
+      likes: 876,
+      retweets: 345,
+      replies: 123,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 12,
+      author: "DevOps Daily",
+      handle: "@devopsday",
+      content:
+        "Kubernetes best practices: A comprehensive guide to managing your clusters effectively 🎯",
+      timestamp: "16h",
+      likes: 2341,
+      retweets: 987,
+      replies: 345,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 13,
+      author: "JavaScript News",
+      handle: "@jsnews",
+      content:
+        "TypeScript 5.0 features that will boost your productivity. Let's dive in! 🚀",
+      timestamp: "17h",
+      likes: 1654,
+      retweets: 765,
+      replies: 234,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 14,
+      author: "Code Quality",
+      handle: "@codequality",
+      content:
+        "Clean Code principles that every developer should follow. A thread on writing maintainable code 🧵",
+      timestamp: "18h",
+      likes: 1987,
+      retweets: 876,
+      replies: 345,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 15,
+      author: "UI/UX Tips",
+      handle: "@uiuxtips",
+      content:
+        "Design systems are crucial for scaling your product. Here's how to build one from scratch 🎨",
+      timestamp: "19h",
+      likes: 1234,
+      retweets: 543,
+      replies: 187,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 16,
+      author: "Blockchain Dev",
+      handle: "@blockchaindev",
+      content:
+        "Smart contract security: Common vulnerabilities and how to prevent them 🔒",
+      timestamp: "20h",
+      likes: 2198,
+      retweets: 876,
+      replies: 432,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 17,
+      author: "ML Engineer",
+      handle: "@mlengineer",
+      content:
+        "Deep learning frameworks comparison: PyTorch vs TensorFlow in 2024 🤖",
+      timestamp: "21h",
+      likes: 1876,
+      retweets: 765,
+      replies: 234,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 18,
+      author: "API Design",
+      handle: "@apidesign",
+      content:
+        "RESTful API design principles that will make your endpoints more intuitive and maintainable",
+      timestamp: "22h",
+      likes: 1543,
+      retweets: 654,
+      replies: 198,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 19,
+      author: "Testing Pro",
+      handle: "@testingpro",
+      content:
+        "Unit testing strategies that will save you hours of debugging time ⏱️",
+      timestamp: "23h",
+      likes: 987,
+      retweets: 432,
+      replies: 156,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 20,
+      author: "Git Master",
+      handle: "@gitmaster",
+      content:
+        "Advanced Git workflows that will improve your team's collaboration 🤝",
+      timestamp: "1d",
+      likes: 1765,
+      retweets: 876,
+      replies: 345,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 21,
+      author: "Performance Guru",
+      handle: "@perfguru",
+      content:
+        "Web vitals optimization techniques that will boost your lighthouse score 📈",
+      timestamp: "1d",
+      likes: 2341,
+      retweets: 987,
+      replies: 432,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 22,
+      author: "System Design",
+      handle: "@sysdesign",
+      content:
+        "Microservices vs Monolith: Making the right architectural decision for your project",
+      timestamp: "1d",
+      likes: 1987,
+      retweets: 876,
+      replies: 345,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 23,
+      author: "Docker Expert",
+      handle: "@dockerpro",
+      content:
+        "Container orchestration best practices for production environments 🐳",
+      timestamp: "1d",
+      likes: 1654,
+      retweets: 765,
+      replies: 234,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 24,
+      author: "Cloud Security",
+      handle: "@cloudsec",
+      content:
+        "AWS security configurations that you should implement right now ☁️",
+      timestamp: "1d",
+      likes: 2198,
+      retweets: 987,
+      replies: 456,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 25,
+      author: "React Native Dev",
+      handle: "@rndev",
+      content:
+        "Cross-platform development tips that will save you time and effort 📱",
+      timestamp: "1d",
+      likes: 1432,
+      retweets: 654,
+      replies: 234,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 26,
+      author: "GraphQL Expert",
+      handle: "@graphqlexp",
+      content:
+        "Schema design patterns that will make your GraphQL API more efficient",
+      timestamp: "1d",
+      likes: 1876,
+      retweets: 765,
+      replies: 345,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 27,
+      author: "Vue Master",
+      handle: "@vuemaster",
+      content:
+        "Vue 3 Composition API patterns that will improve your component logic 💚",
+      timestamp: "1d",
+      likes: 1543,
+      retweets: 654,
+      replies: 234,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 28,
+      author: "CSS Wizard",
+      handle: "@csswizard",
+      content: "Advanced CSS Grid techniques for complex layouts 🎨",
+      timestamp: "1d",
+      likes: 1987,
+      retweets: 876,
+      replies: 345,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 29,
+      author: "Backend Pro",
+      handle: "@backendpro",
+      content:
+        "Node.js performance optimization techniques for high-traffic applications",
+      timestamp: "1d",
+      likes: 2341,
+      retweets: 987,
+      replies: 432,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 30,
+      author: "Data Science",
+      handle: "@datascience",
+      content: "Data visualization best practices for better insights 📊",
+      timestamp: "1d",
+      likes: 1765,
+      retweets: 765,
+      replies: 234,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 31,
+      author: "iOS Developer",
+      handle: "@iosdev",
+      content: "SwiftUI tips and tricks for building beautiful iOS apps 🍎",
+      timestamp: "2d",
+      likes: 1432,
+      retweets: 654,
+      replies: 198,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 32,
+      author: "Android Guru",
+      handle: "@androidguru",
+      content: "Jetpack Compose patterns for modern Android development 🤖",
+      timestamp: "2d",
+      likes: 1876,
+      retweets: 765,
+      replies: 345,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 33,
+      author: "Web Security",
+      handle: "@websecurity",
+      content: "OWASP top 10 vulnerabilities and how to prevent them 🔒",
+      timestamp: "2d",
+      likes: 2198,
+      retweets: 987,
+      replies: 432,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 34,
+      author: "Flutter Dev",
+      handle: "@flutterdev",
+      content:
+        "State management solutions in Flutter: A comprehensive comparison 💙",
+      timestamp: "2d",
+      likes: 1543,
+      retweets: 654,
+      replies: 234,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 35,
+      author: "Redis Expert",
+      handle: "@redisexp",
+      content: "Caching strategies that will improve your app's performance ⚡",
+      timestamp: "2d",
+      likes: 1987,
+      retweets: 876,
+      replies: 345,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 36,
+      author: "AWS Solutions",
+      handle: "@awssolutions",
+      content: "Serverless patterns for scalable cloud applications ☁️",
+      timestamp: "2d",
+      likes: 2341,
+      retweets: 987,
+      replies: 432,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 37,
+      author: "Rust Developer",
+      handle: "@rustdev",
+      content: "Memory safety patterns in Rust that prevent common bugs 🦀",
+      timestamp: "2d",
+      likes: 1765,
+      retweets: 765,
+      replies: 234,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 38,
+      author: "Go Expert",
+      handle: "@goexpert",
+      content: "Concurrency patterns in Go for high-performance systems",
+      timestamp: "2d",
+      likes: 1876,
+      retweets: 876,
+      replies: 345,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      id: 39,
+      author: "ML Ops",
+      handle: "@mlops",
+      content:
+        "Machine learning deployment strategies for production environments 🤖",
+      timestamp: "2d",
+      likes: 2198,
+      retweets: 987,
+      replies: 432,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
   ];
+  const { ref, inView } = useInView();
+  const [displayedTweets, setDisplayedTweets] = useState(5);
+
+  const fetchNextPage = () => {
+    const nextBatch = displayedTweets + 5;
+
+    if (nextBatch <= tweets.length) {
+      setDisplayedTweets(nextBatch);
+    }
+  };
+
+  useEffect(() => {
+    if (inView) {
+      console.log("Tweet is in view");
+      fetchNextPage();
+    }
+  }, [inView, displayedTweets]);
+
   //  <Logout />;
   return (
     <div className='flex min-h-screen bg-[#1c1c1c] text-white relative'>
@@ -173,8 +591,6 @@ function Page() {
                 Tyndall
               </span>
             </div>
-
-            {/* <h1 className='text-xl font-bold text-gray-500'>Following</h1> */}
           </div>
 
           <div className='p-4'>
@@ -207,7 +623,11 @@ function Page() {
 
           <div className='pb-16 md:pb-0'>
             {tweets.map((tweet) => (
-              <Tweet key={tweet.id} tweet={tweet} />
+              <Tweet
+                key={tweet.id}
+                ref={ref}
+                tweet={tweets.slice(0, displayedTweets)}
+              />
             ))}
           </div>
         </div>
@@ -313,14 +733,17 @@ function Page() {
   );
 }
 
-function Tweet({ tweet }) {
+function Tweet({ tweet, ref }) {
   return (
-    <div className='p-4 border-b border-gray-800 hover:bg-gray-900/50'>
+    <div
+      ref={ref}
+      className='p-4 border-b border-gray-800 hover:bg-gray-800/50'
+    >
       <div className='flex space-x-4'>
-        <Avatar>
+        {/* <Avatar>
           <AvatarImage src={tweet.avatar} />
           <AvatarFallback>{tweet.author[0]}</AvatarFallback>
-        </Avatar>
+        </Avatar> */}
         <div className='flex-1'>
           <div className='flex items-center justify-between'>
             <div>
@@ -339,10 +762,7 @@ function Tweet({ tweet }) {
               <MessageCircle className='h-4 w-4 mr-2' />
               {tweet.replies}
             </Button>
-            <Button variant='ghost' size='sm' className='hover:text-green-500'>
-              <Repeat2 className='h-4 w-4 mr-2' />
-              {tweet.retweets}
-            </Button>
+
             <Button variant='ghost' size='sm' className='hover:text-red-500'>
               <Heart className='h-4 w-4 mr-2' />
               {tweet.likes}
