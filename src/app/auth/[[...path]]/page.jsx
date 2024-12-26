@@ -13,7 +13,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Menu } from "lucide-react";
+import { Eye, EyeOff, Menu, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { testimonials } from "@/app/constants";
 import { FcGoogle } from "react-icons/fc";
@@ -25,12 +25,19 @@ import { set } from "mongoose";
 export default function Auth() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isSignIn, setIsSignIn] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const [loadingForSignUp, setLoadingForSignUp] = useState(false);
   const [loadingForSignIn, setLoadingForSignIn] = useState(false);
+
+  const [hidePass, setHidePass] = useState(true);
   const [errorMessage, setSetErrorMessage] = useState({
     email: "",
     password: "",
   });
+
+  const router = useRouter();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -65,11 +72,6 @@ export default function Auth() {
   //     EmailPasswordPreBuiltUI,
   //   ]);
   // }
-
-  const router = useRouter();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   useEffect(() => {
     if (email && password) {
@@ -320,11 +322,12 @@ export default function Auth() {
                 )}
               </div>
 
-              <div className='space-y-2'>
+              <div className='space-y-2 '>
                 <div className='flex items-center justify-between'>
                   <label htmlFor='password' className='text-sm text-gray-400'>
                     Password
                   </label>
+
                   {isSignIn && (
                     <a
                       href='#'
@@ -334,19 +337,33 @@ export default function Auth() {
                     </a>
                   )}
                 </div>
-                <Input
-                  id='password'
-                  type='password'
-                  placeholder='Enter your password'
-                  className='bg-[#2C2C2C] border-0 text-white h-12'
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                {errorMessage.password && (
-                  <p className='text-red-500 text-sm mt-1'>
-                    {errorMessage.password}
-                  </p>
-                )}
+
+                <div className='relative'>
+                  <Input
+                    id='password'
+                    type={hidePass ? "password" : "text"}
+                    placeholder='Enter your password'
+                    className='bg-[#2C2C2C] border-0 pr-10 text-white h-12'
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  {errorMessage.password && (
+                    <p className='text-red-500 text-sm mt-1'>
+                      {errorMessage.password}
+                    </p>
+                  )}
+
+                  <div
+                    onClick={() => setHidePass((prev) => !prev)}
+                    className='cursor-pointer'
+                  >
+                    {hidePass ? (
+                      <EyeOff className='absolute right-3 top-4 h-5 w-5 text-gray-400' />
+                    ) : (
+                      <Eye className='absolute right-3 top-4 h-5 w-5 text-gray-400' />
+                    )}
+                  </div>
+                </div>
               </div>
 
               <Button

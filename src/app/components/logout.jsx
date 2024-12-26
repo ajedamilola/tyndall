@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 import React from "react";
 import { signOut } from "supertokens-auth-react/recipe/session";
 
@@ -11,9 +12,8 @@ function Logout() {
     <ul>
       <li>Home</li>
       <li onClick={onLogout}>Logout</li>
-
     </ul>
-  )
+  );
 }
 
-export default Logout
+export default Logout;
