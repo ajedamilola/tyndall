@@ -1,8 +1,7 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { generateMoreArticles } from "@/app/api/user/functions";
-import Logout from "@/app/components/logout";
-import SessionValidator from "@/app/components/sessionValidator";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +39,7 @@ import { signOut } from "supertokens-web-js/recipe/session";
 function Page() {
   const [content, setContent] = useState("");
   const [openLogOutModal, setOpenLogOutModal] = useState(false);
+
   async function act() {
     setContent("loading");
     let resp = await generateAIArticles({
@@ -539,7 +539,6 @@ function Page() {
     }
   }, [inView, displayedTweets]);
 
-  //  <Logout />;
   return (
     <>
       <div className='flex min-h-screen bg-[#1c1c1c] text-white relative'>
