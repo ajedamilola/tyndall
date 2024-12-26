@@ -199,22 +199,35 @@ export async function toggleArticleLike({ articleId, userId }) {
 
 
 export async function createComment({ articleId, userId, content }) {
+  console.log({ articleId, userId, content })
   try {
     const newComment = await prisma.comment.create({
       data: {
-        articleId,
-        userId,
+        article: {
+          connect: {
+            id: articleId
+          }
+        },
+        user: {
+          connect: {
+            superTokenId: userId
+          }
+        },
         content,
+        userId
+      },
+      include: {
+        user: true
       },
     });
     const user = await getUserById(userId)
     await prisma.telementry.update({
       where: {
         id: user.telementryId,
-        data: {
-          commentedArticles: {
-            push: articleId
-          }
+      },
+      data: {
+        commentedArticles: {
+          push: articleId
         }
       }
     });
@@ -320,4 +333,32 @@ export async function submitFeedback({ userId, content, article, positive }) {
     })
   }
   return { msg: "Feecback sent" };
+}
+
+
+export async function getLikedArticles(userId) {
+  const telementry = await prisma.telementry.findFirst({
+    where: {
+      users: {
+        some: {
+          superTokenId: userId
+        }
+      }
+    }
+  })
+  const articles = await prisma.article.findMany({
+    where: {
+      id: {
+        in: telementry.likedArticles
+      }
+    },
+    include: {
+      comments: {
+        select: {
+          id: true
+        }
+      }
+    }
+  })
+  return articles;
 }

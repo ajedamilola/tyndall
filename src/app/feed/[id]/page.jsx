@@ -1,12 +1,11 @@
-import { generateAIArticleContent, getArticleById } from '@/app/api/article/functions'
+import { generateAIArticleContent, getArticleById, getFullArticle } from '@/app/api/article/functions'
 import { redirect } from 'next/navigation'
 import React from 'react'
-import parse from "html-react-parser"
-import { Button } from '@/components/ui/button'
+import ShowArticle from './showArticle'
 
 async function page({ params }) {
-  const { id } = params
-  let article = await getArticleById(id)
+  const { id } = await params
+  let article = await getFullArticle(id)
   if (!article) {
     return redirect("/feed")
   }
@@ -14,27 +13,27 @@ async function page({ params }) {
     article = await generateAIArticleContent({ id, isAPI: false })
     if (!article) {
       return redirect("/feed")
+    } else {
+      return redirect(`/feed/${id}`)
     }
   }
   //TODO: If time allows we can use whisper to "talk"
+  //The reason why i put the main content in a seperate component is because the logic requires useState and hooks and those wont make it into the server component
   return (
-    <div>
-      {article.contentStatus == "Generating" || article.contentStatus == "NotGenerated" ? <div>
-        Content Still Generating please check back later
-        <Button onClick={() => {
-          generateAIArticleContent({ id, isAPI: false })
-        }}>Hasten This Process</Button>
-      </div>
-        :
-        <div>
-          My Guy Style this shit
-        </div>}
-      <h1 className='text-2xl font-bold'>{article.title}</h1>
-      <div className="text-sm opacity-80">{article.summary}</div>
-      {article.content && parse(article.content)}
-      {JSON.stringify(article.references)}
-    </div>
+    <ShowArticle article={article} />
   )
+}
+
+export async function generateMetadata({ params }) {
+  const { id } = await params
+  let article = await getArticleById(id)
+  if (!article) {
+    return redirect("/feed")
+  }
+  return {
+    title: article.title,
+    description: article.summary,
+  };
 }
 
 export default page

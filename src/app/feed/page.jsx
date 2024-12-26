@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { generateMoreArticles, getUserById, toggleArticleLike } from "@/app/api/user/functions";
+import { getUserById } from "@/app/api/user/functions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,26 +11,16 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   Bell,
   Home,
   Mail,
   Search,
-  MoreHorizontal,
-  Heart,
-  MessageCircle,
-  Share,
-  LogOut,
-  Star,
-  Book,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  generateAIArticleContent,
   generateAIArticles,
   getArticles,
 } from "../api/article/functions";
@@ -41,13 +31,13 @@ import Loader from "@/components/Loader";
 import SessionValidator from "../components/sessionValidator";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { set } from "mongoose";
-import { Block } from "notiflix";
+import Tweet from "../components/tweet";
 import Link from "next/link";
+import MobileNav from "../components/mobileNav";
 
 function Page() {
   const [content, setContent] = useState("");
-  const [openLogOutModal, setOpenLogOutModal] = useState(false);
+  const [search, setSearch] = useState("")
 
   async function act() {
     setContent("loading");
@@ -59,10 +49,6 @@ function Page() {
     setContent(resp);
   }
 
-  async function handleLogout() {
-    await signOut();
-    router.replace("/auth"); // or to wherever your logic page is
-  }
 
   const { ref, inView } = useInView();
   const [articles, setArticles] = useState([])
@@ -150,13 +136,18 @@ function Page() {
             </div>
 
             <div className='p-4'>
-              <div className='relative'>
+              <div className='relative flex'>
                 <Search className='absolute left-3 top-3.5 h-5 w-5 text-gray-400' />
 
                 <Input
-                  placeholder='What content would you like?'
-                  className='pl-10 bg-gray-700 py-6 border-gray-800 rounded-lg w-full placeholder:text-gray-200'
+                  placeholder='What content would you like? min 5 characters'
+                  className='pl-10 bg-gray-700 py-6 border-gray-800 rounded-lg w-full placeholder'
+                  onChange={(e) => setSearch(e.target.value)}
+                  value={search}
                 />
+                <Button className="inline h-[50px]" disabled={search.length < 5} onClick={() => {
+                  router.push(`/search/${search}`)
+                }}>Search</Button>
               </div>
             </div>
           </div>
@@ -169,7 +160,7 @@ function Page() {
                   Welcome to Tyndall
                 </h2>
                 <p className='text-gray-400'>
-                  Get access to a wide range of AI Generated resources to help you learn and grow.
+                  A platform that is designed to make learning and studying easier by providing you highly informative and relevant content. Powered by <b>Generative AI</b>
                 </p>
                 <Button className='bg-white text-black hover:bg-gray-200'>
                   Get Started
@@ -179,7 +170,7 @@ function Page() {
 
             <div className='pb-16 md:pb-0'>
               {articles.map((tweet) => (
-                <Tweet key={Math.random()} tweet={tweet} />
+                <Tweet key={tweet.id} tweet={tweet} />
               ))}
 
               <div ref={ref} className='flex justify-center p-4'>
@@ -195,8 +186,21 @@ function Page() {
         <div className='hidden lg:block w-80 p-4'>
           <div className='sticky top-4 space-y-4'>
             <div className='bg-gray-800 rounded-xl p-4'>
-              <h2 className='text-xl font-bold mb-4'>Suggested Tags</h2>
+              <h2 className='text-xl font-bold mb-4'>Your Fields</h2>
               <div className='flex flex-wrap gap-2'>
+                {
+                  userData?.preferences?.map((tag) => (
+                    <Link key={tag} href={`/categories/${tag}`}>
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        className='rounded-lg text-black/85'
+                      >
+                        #
+                        {tag}
+                      </Button></Link>
+                  ))
+                }
                 <Button
                   variant='outline'
                   size='sm'
@@ -204,193 +208,18 @@ function Page() {
                 >
                   #TechNews
                 </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='rounded-lg text-black/85'
-                >
-                  #WebDev
-                </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='rounded-lg text-black/85'
-                >
-                  #AI
-                </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='rounded-lg text-black/85'
-                >
-                  #Programming
-                </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='rounded-lg text-black/85'
-                >
-                  #JavaScript
-                </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='rounded-lg text-black/85'
-                >
-                  #ReactJS
-                </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='rounded-lg text-black/85'
-                >
-                  #MachineLearning
-                </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='rounded-lg text-black/85'
-                >
-                  #DataScience
-                </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='rounded-lg text-black/85'
-                >
-                  #CyberSecurity
-                </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='rounded-lg text-black/85'
-                >
-                  #CloudComputing
-                </Button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile Bottom Navigation - Visible only on mobile */}
-        <div className='fixed bottom-0 left-0 right-0 bg-[#1c1c1c] border-t border-gray-800 p-2 flex justify-around md:hidden'>
-          <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
-            <Home className='h-6 w-6' />
-          </Button>
-          <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
-            <Search className='h-6 w-6' />
-          </Button>
-          <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
-            <Bell className='h-6 w-6' />
-          </Button>
-          <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
-            <Mail className='h-6 w-6' />
-          </Button>
-        </div>
+        <MobileNav />
       </div>
 
-      <AlertDialog open={openLogOutModal} onOpenChange={setOpenLogOutModal}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Ae you sure you wanna Logout?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleLogout}>
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
     </>
   );
 }
 
-function Tweet({ tweet, ref }) {
-  const [likes, setLikes] = useState(tweet.likes)
-  const [liked, setLiked] = useState(likes.includes(window.userId))
-  const [comments, setComments] = useState(tweet.comments)
-  return (
-    <div
-      ref={ref}
-      className='p-4 border-b border-gray-800 hover:bg-gray-800/50 block' id={tweet.title}
-
-    >
-      <div className='flex space-x-4' >
-        {/* <Avatar>
-          <AvatarImage src={tweet.avatar} />
-          <AvatarFallback>{tweet.author[0]}</AvatarFallback>
-        </Avatar> */}
-        <div className='flex-1'>
-          <Link href={`/feed/${tweet.id}`}>
-            <div className='flex items-center justify-between'>
-              <div>
-                <span className='font-bold'>{tweet.title}</span>{" "}
-                <span className='text-gray-500'>
-                  {tweet.timestamp}
-                </span>
-              </div>
-
-              <Button variant='ghost' size='icon' className='text-gray-500'>
-                <MoreHorizontal className='h-5 w-5' />
-              </Button>
-            </div>
-
-            <p className='mt-2 text-gray-200'>{tweet.summary}</p>
-          </Link>
-
-          <div className='flex justify-between mt-4 text-gray-500 max-w-md' onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-          }}>
-            <Button
-              variant='ghost'
-              size='sm'
-              title='comments'
-              className='hover:text-[#00b8aa]'
-              onClick={async e => {
-                e.stopPropagation()
-              }}
-            >
-              <MessageCircle className='h-4 w-4 mr-2' />
-              {tweet.comments.length}
-            </Button>
-
-            <Button
-              variant='ghost'
-              size='sm'
-              title='likes'
-              className='hover:text-red-500'
-              onClick={async (e) => {
-                e.stopPropagation()
-                setLiked(!liked)
-                const newArticle = await toggleArticleLike({ articleId: tweet.id, userId: window.userId })
-                if (newArticle.err) {
-                  return toast.error(newArticle.err)
-                }
-                setLikes(newArticle.likes)
-              }}
-            >
-              <Heart className={`h-4 w-4 mr-2 ${liked ? "text-red-500" : ""}`} />
-              {likes.length}
-            </Button>
-
-            <Button
-              variant='ghost'
-              size='sm'
-              className='hover:text-[#00b8aa]'
-              title='share'
-            >
-              <Share className='h-4 w-4' />
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default Page;
