@@ -97,9 +97,6 @@ const countries = [
 const OnboardingModal = ({ onComplete }) => {
   const [step, setStep] = useState(0);
   const [selectedInterests, setSelectedInterests] = useState([]);
-  const [language, setLanguage] = useState("");
-  const [country, setCountry] = useState("");
-  const [gender, setGender] = useState("");
 
   const handleInterestToggle = (categoryId) => {
     setSelectedInterests((prev) =>
@@ -112,14 +109,11 @@ const OnboardingModal = ({ onComplete }) => {
   };
 
   const handleNext = () => {
-    if (step < 3) {
+    if (step < 1) {
       setStep(step + 1);
     } else {
       onComplete?.({
         interests: selectedInterests,
-        language,
-        country,
-        gender,
       });
     }
   };
@@ -128,10 +122,6 @@ const OnboardingModal = ({ onComplete }) => {
     switch (step) {
       case 1:
         return selectedInterests.length === 5;
-      case 2:
-        return language && country;
-      case 3:
-        return gender;
       default:
         return true;
     }
@@ -154,7 +144,7 @@ const OnboardingModal = ({ onComplete }) => {
       >
         {/* Progress dots */}
         <div className='absolute top-4 left-0 right-0 flex justify-center gap-2'>
-          {[0, 1, 2].map((dotIndex) => (
+          {[0, 1].map((dotIndex) => (
             <div
               key={dotIndex}
               className={`w-2 h-2 rounded-full ${
@@ -258,87 +248,13 @@ const OnboardingModal = ({ onComplete }) => {
               </div>
             )}
 
-            {step === 2 && (
-              <div className='space-y-6'>
-                <div className='text-center'>
-                  <h2 className='text-2xl font-bold'>
-                    What's your language and location?
-                  </h2>
-                  <p className='text-gray-500'>
-                    This helps us find you more relevant content
-                  </p>
-                </div>
-                <div className='space-y-4 max-w-sm mx-auto'>
-                  <div className='space-y-2'>
-                    <label className='text-sm font-medium'>Language</label>
-                    <Select value={language} onValueChange={setLanguage}>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select your language' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {languages.map((lang) => (
-                          <SelectItem key={lang.value} value={lang.value}>
-                            {lang.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className='space-y-2'>
-                    <label className='text-sm font-medium'>Country</label>
-                    <Select value={country} onValueChange={setCountry}>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select your country' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {countries.map((c) => (
-                          <SelectItem key={c.value} value={c.value}>
-                            {c.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className='space-y-6'>
-                <div className='text-center'>
-                  <h2 className='text-2xl font-bold'>What's your gender?</h2>
-                  <p className='text-gray-500'>
-                    This helps us personalize your experience
-                  </p>
-                </div>
-                <RadioGroup
-                  value={gender}
-                  onValueChange={setGender}
-                  className='space-y-4 max-w-sm mx-auto'
-                >
-                  <div className='flex items-center space-x-2'>
-                    <RadioGroupItem value='female' id='female' />
-                    <label htmlFor='female'>Female</label>
-                  </div>
-                  <div className='flex items-center space-x-2'>
-                    <RadioGroupItem value='male' id='male' />
-                    <label htmlFor='male'>Male</label>
-                  </div>
-                  <div className='flex items-center space-x-2'>
-                    <RadioGroupItem value='other' id='other' />
-                    <label htmlFor='other'>Specify another</label>
-                  </div>
-                </RadioGroup>
-              </div>
-            )}
-
             <div className='mt-8'>
               <Button
                 onClick={handleNext}
                 disabled={!canProceed()}
                 className='w-full bg-emerald-600  py-0 text-white'
               >
-                {step === 2 ? "Complete Setup" : "Next"}
+                {step === 1 ? "Complete Setup" : "Next"}
               </Button>
             </div>
           </motion.div>

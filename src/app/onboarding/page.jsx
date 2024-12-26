@@ -11,7 +11,7 @@ export default function page() {
   const handleOnboardingComplete = (data) => {
     console.log("Onboarding completed with data:", data);
     setShowOnboarding(false);
-    router.push("/feeds");
+    router.push("/feed");
   };
 
   return (

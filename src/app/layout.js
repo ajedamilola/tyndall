@@ -1,6 +1,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { SuperTokensProvider } from "./components/supertokensProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 BigInt.prototype.toJSON = function () {
   return this.toString();
@@ -29,6 +30,7 @@ export default function RootLayout({ children }) {
           className={`${inter.variable} ${interMono.variable} antialiased font-inter`}
         >
           {children}
+          <Toaster position='top-right' />
         </body>
       </SuperTokensProvider>
     </html>

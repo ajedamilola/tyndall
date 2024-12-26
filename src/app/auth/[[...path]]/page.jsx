@@ -6,7 +6,10 @@ import SuperTokens from "supertokens-auth-react/ui";
 import { ThirdPartyPreBuiltUI } from "supertokens-auth-react/recipe/thirdparty/prebuiltui";
 import { EmailPasswordPreBuiltUI } from "supertokens-auth-react/recipe/emailpassword/prebuiltui";
 import { signUp, signIn } from "supertokens-web-js/recipe/emailpassword";
-import { getAuthorisationURLWithQueryParamsAndSetState, signInAndUp } from "supertokens-web-js/recipe/thirdparty";
+import {
+  getAuthorisationURLWithQueryParamsAndSetState,
+  signInAndUp,
+} from "supertokens-web-js/recipe/thirdparty";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,12 +18,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { testimonials } from "@/app/constants";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
-
+import { toast } from "sonner";
+import { set } from "mongoose";
 // Testimonial data
 
 export default function Auth() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isSignIn, setIsSignIn] = useState(false);
+  const [loadingForSignUp, setLoadingForSignUp] = useState(false);
+  const [loadingForSignIn, setLoadingForSignIn] = useState(false);
+  const [errorMessage, setSetErrorMessage] = useState({
+    email: "",
+    password: "",
+  });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -56,106 +66,139 @@ export default function Auth() {
   //   ]);
   // }
 
-  const router = useRouter()
+  const router = useRouter();
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (email && password) {
+      setSetErrorMessage({
+        email: "",
+        password: "",
+      });
+    }
+  }, [email, password]);
 
   async function signUpClicked() {
     try {
+      if (!email || !password) {
+        setSetErrorMessage({
+          email: "Email is required",
+          password: "Password is required",
+        });
+        return;
+      }
+
+      setLoadingForSignUp(true);
       let response = await signUp({
-        formFields: [{
-          id: "email",
-          value: email
-        }, {
-          id: "password",
-          value: password
-        }]
-      })
+        formFields: [
+          {
+            id: "email",
+            value: email,
+          },
+          {
+            id: "password",
+            value: password,
+          },
+        ],
+      });
 
       if (response.status === "FIELD_ERROR") {
         // one of the input formFields failed validation
-        response.formFields.forEach(formField => {
+        response.formFields.forEach((formField) => {
           if (formField.id === "email") {
             // Email validation failed (for example incorrect email syntax),
             // or the email is not unique.
-            window.alert(formField.error)
+            toast.error(formField.error);
           } else if (formField.id === "password") {
             // Password validation failed.
             // Maybe it didn't match the password strength
-            window.alert(formField.error)
+            toast.error(formField.error);
           }
-        })
+        });
       } else if (response.status === "SIGN_UP_NOT_ALLOWED") {
         // the reason string is a user friendly message
         // about what went wrong. It can also contain a support code which users
         // can tell you so you know why their sign up was not allowed.
-        window.alert(response.reason)
+        toast.message(response.reason);
       } else {
         // sign up successful. The session tokens are automatically handled by
         // the frontend SDK.
-        router.replace("/feed")
+        toast.success("Sign up successful!");
+        setLoadingForSignUp(false);
+        router.replace("/onboarding");
       }
     } catch (err) {
       if (err.isSuperTokensGeneralError === true) {
         // this may be a custom error message sent from the API by you.
-        window.alert(err.message);
+        toast.message(err.message);
       } else {
-        window.alert("Oops! Something went wrong.");
+        toast.message("Oops! Something went wrong.");
       }
+    } finally {
+      setLoadingForSignUp(false);
     }
   }
 
   async function signInClicked() {
     try {
+      setLoadingForSignIn(true);
       let response = await signIn({
-        formFields: [{
-          id: "email",
-          value: email
-        }, {
-          id: "password",
-          value: password
-        }]
-      })
+        formFields: [
+          {
+            id: "email",
+            value: email,
+          },
+          {
+            id: "password",
+            value: password,
+          },
+        ],
+      });
 
       switch (response.status) {
         case "FIELD_ERROR":
           // one of the input formFields failed validation
-          response.formFields.forEach(formField => {
+          response.formFields.forEach((formField) => {
             if (formField.id === "email") {
               // Email validation failed (for example incorrect email syntax),
               // or the email is not unique.
-              window.alert(formField.error)
+              toast.error(formField.error);
             } else if (formField.id === "password") {
               // Password validation failed.
               // Maybe it didn't match the password strength
-              window.alert(formField.error)
+              toast.error(formField.error);
             }
-          })
-          break
+          });
+          break;
         case "SIGN_UP_NOT_ALLOWED":
           // the reason string is a user friendly message
           // about what went wrong. It can also contain a support code which users
           // can tell you so you know why their sign up was not allowed.
-          window.alert(response.reason)
-          break
+          toast.message(response.reason);
+          break;
         case "WRONG_CREDENTIALS_ERROR":
           // the email or password was incorrect
-          window.alert("Incorrect email or password")
+          toast.error("Incorrect email or password");
           break;
         case "OK":
           // sign up successful. The session tokens are automatically handled by
           // the frontend SDK.
-          router.replace("/feed")
-          break
+          set;
+          toast.success("Signed in successfully");
+          router.replace("/onboarding");
+          break;
       }
     } catch (err) {
       if (err.isSuperTokensGeneralError === true) {
         // this may be a custom error message sent from the API by you.
-        window.alert(err.message);
+        toast.message(err.message);
       } else {
-        window.alert("Oops! Something went wrong.");
+        toast.info("Oops! Something went wrong.");
       }
+    } finally {
+      setLoadingForSignIn(false);
     }
   }
 
@@ -175,9 +218,9 @@ export default function Auth() {
       console.log(err);
       if (err.isSuperTokensGeneralError === true) {
         // this may be a custom error message sent from the API by you.
-        window.alert(err.message);
+        toast.message(err.message);
       } else {
-        window.alert("Oops! Something went wrong.");
+        toast.message("Oops! Something went wrong.");
       }
     }
   }
@@ -193,12 +236,12 @@ export default function Auth() {
         // } else {
         //   // sign in successful
         // }ww
-        router.replace("/feed")
+        router.replace("/onboarding");
       } else if (response.status === "SIGN_IN_UP_NOT_ALLOWED") {
         // the reason string is a user friendly message
         // about what went wrong. It can also contain a support code which users
         // can tell you so you know why their sign in / up was not allowed.
-        window.alert(response.reason)
+        toast.message(response.reason);
       } else {
         // SuperTokens requires that the third party provider
         // gives an email for the user. If that's not the case, sign up / in
@@ -206,25 +249,25 @@ export default function Auth() {
 
         // As a hack to solve this, you can override the backend functions to create a fake email for the user.
 
-        window.alert("No email provided by social login. Please use another form of login");
+        toast.message(
+          "No email provided by social login. Please use another form of login"
+        );
         // window.location.assign("/auth"); // redirect back to login page
       }
     } catch (err) {
       console.log(err);
       if (err.isSuperTokensGeneralError === true) {
         // this may be a custom error message sent from the API by you.
-        window.alert(err.message);
+        toast.message(err.message);
       } else {
-        window.alert("Oops! Something went wrong.");
+        toast.message("Oops! Something went wrong.");
       }
     }
   }
 
   useEffect(() => {
     handleGoogleCallback();
-  }, [])
-
-
+  }, []);
 
   return (
     <div className='h-dvh bg-[#1C1C1C] text-white'>
@@ -270,20 +313,26 @@ export default function Auth() {
                   onChange={(e) => setEmail(e.target.value)}
                   className='bg-[#2C2C2C] border-0 text-white h-12'
                 />
+                {errorMessage.email && (
+                  <p className='text-red-500 text-sm mt-1'>
+                    {errorMessage.email}
+                  </p>
+                )}
               </div>
-
 
               <div className='space-y-2'>
                 <div className='flex items-center justify-between'>
                   <label htmlFor='password' className='text-sm text-gray-400'>
                     Password
                   </label>
-                  {isSignIn && <a
-                    href='#'
-                    className='text-sm text-[#00B8A9] hover:underline'
-                  >
-                    Forgot password?
-                  </a>}
+                  {isSignIn && (
+                    <a
+                      href='#'
+                      className='text-sm text-[#00B8A9] hover:underline'
+                    >
+                      Forgot password?
+                    </a>
+                  )}
                 </div>
                 <Input
                   id='password'
@@ -293,17 +342,30 @@ export default function Auth() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+                {errorMessage.password && (
+                  <p className='text-red-500 text-sm mt-1'>
+                    {errorMessage.password}
+                  </p>
+                )}
               </div>
 
-
-              <Button className='w-full bg-[#00B8A9] hover:bg-[#00A598] text-white h-12' onClick={() => {
-                if (isSignIn) {
-                  signInClicked()
-                } else {
-                  signUpClicked()
-                }
-              }}>
-                {isSignIn ? "Sign In" : "Register Now"}
+              <Button
+                className='w-full bg-[#00B8A9] hover:bg-[#00A598] text-white h-12'
+                onClick={() => {
+                  if (isSignIn) {
+                    signInClicked();
+                  } else {
+                    signUpClicked();
+                  }
+                }}
+              >
+                {isSignIn
+                  ? loadingForSignIn
+                    ? "Loading..."
+                    : "Sign In"
+                  : loadingForSignUp
+                  ? "Loading..."
+                  : "Sign Up"}{" "}
               </Button>
 
               {!isSignIn && (
@@ -321,7 +383,7 @@ export default function Auth() {
 
                   <Button
                     variant='outline'
-                    className='w-full h-12 bg-[#2C2C2C] border-gray-700 text-white hover:bg-[#3C3C3C]'
+                    className='w-full h-12 bg-[#2C2C2C] border-gray-700 text-white hover:bg-[#3C3C3C] hover:text-white'
                     onClick={googleSignInClicked}
                   >
                     <FcGoogle className='w-5 h-5' />
@@ -387,10 +449,11 @@ export default function Auth() {
                 <button
                   key={index}
                   onClick={() => setCurrentTestimonial(index)}
-                  className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === currentTestimonial
-                    ? "bg-[#00B8A9]"
-                    : "bg-gray-600"
-                    }`}
+                  className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                    index === currentTestimonial
+                      ? "bg-[#00B8A9]"
+                      : "bg-gray-600"
+                  }`}
                 />
               ))}
             </div>
