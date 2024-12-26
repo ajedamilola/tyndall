@@ -645,7 +645,7 @@ function Page() {
 
         {/* Right Sidebar - Hidden on mobile and tablet */}
         <div className='hidden lg:block w-80 p-4'>
-          <div className='sticky top-0 space-y-4'>
+          <div className='sticky top-4 space-y-4'>
             <div className='bg-gray-800 rounded-xl p-4'>
               <h2 className='text-xl font-bold mb-4'>Suggested Tags</h2>
               <div className='flex flex-wrap gap-2'>
