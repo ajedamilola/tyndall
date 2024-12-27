@@ -1,2 +1,3 @@
 - Do Error Checking and handling
 - Do loading states for all fields
+- Fix the duplicate errors: (Either via an extra field that will have the category, fields as a string, or do a raw query search, Or use the same logic i used for my search)
