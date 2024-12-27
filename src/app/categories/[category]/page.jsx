@@ -7,6 +7,7 @@ import Tweet from '../../components/tweet'
 import { getCategoryArticles } from '@/app/api/article/functions'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
+import ErrorPage from '@/app/components/errorPage'
 
 function page({ params }) {
   const { category } = React.use(params)
@@ -15,18 +16,23 @@ function page({ params }) {
   const [user, setUser] = useState({})
   const [articles, setArticles] = useState([])
   const [page, setPage] = useState(1)
+  const [err, setErr] = useState("")
+
   async function getUserData() {
     setLoading(true)
+    setErr(false)
     const data = await getUserById(window.userId)
     const likedData = await getCategoryArticles({ category, page });
     setUser(data)
     if (likedData.err) {
       toast.error(likedData.err)
+      setErr(likedData.err)
     } else {
       setArticles(likedData)
     }
     setLoading(false)
   }
+
   useEffect(() => {
     //Using a delay so the user id would be in
     setTimeout(() => {
@@ -34,6 +40,7 @@ function page({ params }) {
     }, 200)
   }, [])
 
+  if (err) return <ErrorPage callBack={getUserData} err={err} />
 
   return (
     <div className='flex min-h-screen bg-[#1c1c1c] text-white relative'>
