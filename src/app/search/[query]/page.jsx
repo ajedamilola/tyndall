@@ -7,19 +7,23 @@ import SideBar from '../../feed/components/SideBar'
 import Tweet from '../../components/tweet'
 import { searchArticles } from '@/app/api/article/functions'
 import { toast } from 'sonner'
+import ErrorPage from '@/app/components/errorPage'
 
 function page({ params }) {
   const { query } = React.use(params)
   SessionValidator({})
   const [user, setUser] = useState({})
   const [articles, setArticles] = useState([])
+  const [err, setErr] = useState("")
 
   async function getUserData() {
+    setErr("")
     const data = await getUserById(window.userId)
     const searchData = await searchArticles({ query });
     setUser(data)
     if (searchData.err) {
       toast.error(searchData.err)
+      setErr(searchData.err)
     } else {
       setArticles(searchData)
     }
@@ -30,6 +34,8 @@ function page({ params }) {
       getUserData()
     }, 200)
   }, [])
+
+  if (err) return <ErrorPage callBack={getUserData} err={err} />
 
   return (
     <div className='flex min-h-screen bg-[#1c1c1c] text-white relative'>

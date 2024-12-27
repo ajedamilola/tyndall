@@ -6,18 +6,25 @@ import SideBar from '../feed/components/SideBar'
 import Tweet from '../components/tweet'
 import MobileNav from '../components/mobileNav'
 import { Skeleton } from '@/components/ui/skeleton'
+import ErrorPage from '../components/errorPage'
 
 function page() {
   SessionValidator({})
   const [user, setUser] = useState({})
   const [loading, setLoading] = useState(true)
   const [likedArticles, setLikedArticles] = useState([])
+  const [err, setErr] = useState("")
   async function getUserData() {
-    const data = await getUserById(window.userId)
-    const likedData = await getLikedArticles(window.userId);
-    setUser(data)
-    setLikedArticles(likedData)
-    setLoading(false)
+    try {
+      setErr("")
+      const data = await getUserById(window.userId)
+      const likedData = await getLikedArticles(window.userId);
+      setUser(data)
+      setLikedArticles(likedData)
+      setLoading(false)
+    } catch (error) {
+      setErr("Unable to fetch liked articles")
+    }
   }
   useEffect(() => {
     //Using a delay so the user id would be in
@@ -26,7 +33,7 @@ function page() {
     }, 200)
   }, [])
 
-
+  if (err) return <ErrorPage callBack={getUserData} err={err} />
   return (
     <div className='flex min-h-screen bg-[#1c1c1c] text-white relative'>
       <SideBar user={user} />

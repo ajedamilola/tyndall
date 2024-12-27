@@ -14,6 +14,7 @@ import dayjs from 'dayjs'
 import { BrainCircuit, MessageCircle } from 'lucide-react'
 import MobileNav from '@/app/components/mobileNav'
 import Tweet from '@/app/components/tweet'
+import ErrorPage from '@/app/components/errorPage'
 
 function ShowArticle({ article }) {
   SessionValidator({})
@@ -21,14 +22,22 @@ function ShowArticle({ article }) {
   const [comments, setComments] = useState(article.comments)
   const [newComment, setNewComment] = useState("")
   const [simmilar, setSimmilar] = useState([])
+  const [err, setErr] = useState(false)
   async function getUserData() {
-    const data = await getUserById(window.userId)
-    setSimmilar(await suggestArticles({
-      userId: window.userId,
-      articleId: article.id,
-      amount: 5
-    }))
-    setUser(data)
+    try {
+      setErr(true)
+      const data = await getUserById(window.userId)
+      setSimmilar(await suggestArticles({
+        userId: window.userId,
+        articleId: article.id,
+        amount: 5
+      }))
+      setUser(data)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setErr(false)
+    }
   }
   useEffect(() => {
     //Using a delay so the user id would be in
@@ -36,6 +45,8 @@ function ShowArticle({ article }) {
       getUserData()
     }, 200)
   }, [])
+
+  if (err) return <ErrorPage callBack={getUserData} err={"An Error occured while fetching data"} />
   return (
     <div className='flex min-h-screen bg-[#1c1c1c] text-white relative'>
       <SideBar user={user} />
