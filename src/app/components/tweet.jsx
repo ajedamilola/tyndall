@@ -5,6 +5,7 @@ import { Heart, MessageCircle, MoreHorizontal, Share } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toggleArticleLike } from "../api/user/functions";
+import { Loading } from "notiflix";
 
 export default function Tweet({ tweet, ref }) {
   const [likes, setLikes] = useState(tweet.likes)
@@ -45,9 +46,12 @@ export default function Tweet({ tweet, ref }) {
                 size='sm'
                 title='comments'
                 className='hover:text-[#00b8aa]'
+                onClick={() => {
+                  Loading.standard("Loading Feed")
+                }}
               >
                 <MessageCircle className='h-4 w-4 mr-2' />
-                {tweet.comments.length}
+                {tweet.comments?.length || 0}
               </Button>
             </Link>
 

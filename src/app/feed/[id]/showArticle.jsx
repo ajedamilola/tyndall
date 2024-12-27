@@ -25,7 +25,7 @@ function ShowArticle({ article }) {
   const [err, setErr] = useState(false)
   async function getUserData() {
     try {
-      setErr(true)
+      setErr(false)
       const data = await getUserById(window.userId)
       setSimmilar(await suggestArticles({
         userId: window.userId,
@@ -128,7 +128,7 @@ function ShowArticle({ article }) {
                   console.log(error)
                   toast.error("Error posting comment")
                 }
-                Block.remove()
+                Block.remove("#comment")
               }}>
                 <Textarea placeholder='Write a comment' value={newComment} onChange={(e) => {
                   setNewComment(e.target.value)

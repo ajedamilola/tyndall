@@ -34,7 +34,11 @@ export async function storeuser({ email, id, provider }) {
 }
 
 export async function editUser({ id, preferences, name, level }) {
-  console.log(level || former.level)
+  console.log({
+    preferences: preferences || former.preferences,
+    name: name || former.name,
+    level: level || former.level || "beginner"
+  })
   try {
     const former = await getUserById(id);
     const user = await prisma.user.update({
@@ -125,7 +129,7 @@ export async function generateMoreArticles(id) {
 
     return { articles }
   } else {
-    return { err: aiArticles.error }
+    return { err: aiArticles.err }
   }
 }
 

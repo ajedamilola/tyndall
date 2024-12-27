@@ -83,6 +83,7 @@ function Page() {
     console.log({ data: window.userId })
     setLoading(true)
     const data = await getUserById(window.userId)
+
     if (data) {
       const firstArticles = await getArticles({
         userId: window.userId,
@@ -105,6 +106,7 @@ function Page() {
     //Using a delay so the user id would be in
     setTimeout(() => {
       getUserData()
+
     }, 200)
   }, [])
 

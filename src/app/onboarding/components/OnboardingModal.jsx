@@ -85,9 +85,9 @@ const OnboardingModal = ({ onComplete }) => {
     setInitLoading(true)
     setTimeout(async () => {
       const data = await getUserById(window.userId)
-      if (data && data.preferences.length > 0) {
-        return router.replace("/feed")
-      }
+      // if (data && data.preferences.length > 0) {
+      //   return router.replace("/feed")
+      // }
       setForm({ ...form, email: data.email, name: data.email.split("@")[0] })
       setInitLoading(false)
     }, 200)
