@@ -1,29 +1,32 @@
 # Tyndal
 
+## Introduction
 
-
-# Description
-
-This readme documents Tyndall, a web application that uses AI to generate articles on a user-chosen area of interest.
+Tyndall, is a platform that leverages the latest and cutting edge Generative AI to provide generated articles/research materials based on user-chosen area of interest. Tyndall also directs the users to external publications for further study
 
 The functionalities associated with the application are:
-- Users Registration and Signing In
+
+- Users Registration and Authentication
+- Authentication and Registration via **Google**
 - Users can choose from a wide range of areas of Interests
 - Users can like articles which will serve as Telementry to help the AI in generating better contents.
-- Users can share Articles generated to other applications 
-
+- Users can share Articles generated to other applications
+- ..And more
 
 ## Routes
 
 The web application has the following routes:
 
 1. **Registration and Login Routes:**
+
    - Users can register for an account and log in to the application.
 
 2. **Onboarding Routes:**
+
    - These routes guide new users through the initial setup process, such as selecting their areas of interest.
 
 3. **Feed or Article Generation Route:**
+
    - Users can access a feed of AI-generated articles based on their chosen areas of interest.
    - This route uses an API to call an AI model to generate the articles.
 
@@ -33,14 +36,12 @@ The web application has the following routes:
 
 ## Additional Considerations
 
-- Technologies used (Nextjs, Tailwindcss, Anthropic, SuperToken Auth.)
+- Technologies used (Nextjs, Tailwindcss, Anthropic Sonnet 3.5, SuperToken Auth, Google OAuth)
 - Deployment details (Vercel)
-<!-- - API documentation (if the application has a public API)
-- How to contribute to the project (if it's open source) -->
 
 ## Getting Started
 
-First, run the development server:
+- First, run the development server:
 
 ```bash
 npm run dev
@@ -52,9 +53,11 @@ pnpm dev
 bun dev
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 ```
-## Environmental Variables to start the project
 
+- Environmental Variables to start the project
 
+```conf
+#This can be gotten via google cloud console API settings for your project
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
@@ -74,7 +77,7 @@ CORE_API_KEY=
 DATABASE_URL=
 
 
-ANTHROPIC_API_KEY = 
+ANTHROPIC_API_KEY =
 
 ### =========Application specific Config==========
 #Maximum number of article a field can have
@@ -84,7 +87,8 @@ LITE_MODEL = claude-3-5-haiku-20241022
 PRO_MODEL = claude-3-5-sonnet-20241022
 
 #Maximum number of article a field can have
-MAX_FIELD_ARTICLES = 500  
+MAX_FIELD_ARTICLES = 500
+```
 
 ## Conclusion
 
