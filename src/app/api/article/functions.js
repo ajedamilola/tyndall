@@ -58,7 +58,9 @@ export async function generateAIArticles({ domains = [], limit = 10, level = "be
     });
     let rawText = response.content[0].text;
     console.timeEnd("Duration")
-    await fs.writeFile("response.json", rawText);
+    if (process.env.NODE_ENV == "development") {
+      await fs.writeFile("response.json", rawText);
+    }
     const unFilterred = JSON.parse(rawText);
     console.log(unFilterred)
     const generatedArticles = await Promise.all(unFilterred.articles.filter(async article => {
@@ -154,7 +156,9 @@ export async function generateAIArticleContent({ id, isAPI = false }) {
       ]
     });
     let rawText = response.content[0].text;
-    await fs.writeFile("response.json", rawText);
+    if (process.env.NODE_ENV == "development") {
+      await fs.writeFile("response.json", rawText);
+    }
     const aiArticle = JSON.parse(rawText);
     article = await prisma.article.update({
       where: {

@@ -80,14 +80,16 @@ const OnboardingModal = ({ onComplete }) => {
         return true;
     }
   };
-
+  const [initLoading, setInitLoading] = useState(true)
   useEffect(() => {
+    setInitLoading(true)
     setTimeout(async () => {
       const data = await getUserById(window.userId)
       if (data && data.preferences.length > 0) {
         return router.replace("/feed")
       }
       setForm({ ...form, email: data.email, name: data.email.split("@")[0] })
+      setInitLoading(false)
     }, 200)
   }, [])
 
@@ -137,15 +139,21 @@ const OnboardingModal = ({ onComplete }) => {
                 <div className='text-gray-600 text-sm'>{form.email}</div>
 
                 <div className='space-y-2'>
-                  <h1 className='text-xl font-bold font-manrope'>
-                    Welcome to Tyndall
-                    <br />
-                    {form.name}! ✨
-                  </h1>
-                  <p className='text-gray-600 text-sm px-8'>
-                    Your answers to the next few questions will help us find the
-                    right ideas for you
-                  </p>
+                  {!initLoading ?
+                    <>
+                      <h1 className='text-xl font-bold font-manrope'>
+                        Welcome to Tyndall
+                        <br />
+                        {form.name}! ✨
+                      </h1>
+                      <p className='text-gray-600 text-sm px-8'>
+                        Your answers to the next few questions will help us find the
+                        right ideas for you
+                      </p>
+                    </>
+                    :
+                    <div className="text-center">Loading...</div>
+                  }
                 </div>
               </div>
             )}
