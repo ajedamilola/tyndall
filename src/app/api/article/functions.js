@@ -8,20 +8,33 @@ import { categories } from "@/app/config/constants"
 
 export async function generateAIArticles({ domains = [], limit = 10, level = "beginner" }) {
   try {
+    const lowercaseDomains = domains.map(d => d.toLowerCase()).sort();
     const simmilarTopics = await prisma.article.findMany({
       where: {
-        category: {
-          in: domains,
-          mode: "insensitive"
-        },
-        fields: {
-          hasSome: domains
-        },
+        OR: [
+          {
+            category: {
+              in: lowercaseDomains,
+              mode: "insensitive"
+            }
+          },
+          {
+            fields: {
+              hasSome: lowercaseDomains,
+            }
+          },
+          {
+            rawCategories: {
+              hasSome: lowercaseDomains
+            }
+          }
+        ]
       },
       select: {
         title: true
       }
     })
+    console.log({ simmilarTopics, lowercaseDomains })
     const allowedDomains = await Promise.all(domains.filter(async item => {
       const count = await prisma.article.count({
         where: {
@@ -35,7 +48,7 @@ export async function generateAIArticles({ domains = [], limit = 10, level = "be
     }))
     console.time("Duration")
     const response = await anthropic.messages.create({
-      model: process.env.PRO_MODEL,
+      model: process.env.LITE_MODEL,
       max_tokens: 8192,
       temperature: 0,
       system: `You are part of a education resource hub , you are a bot generate  highly educative articles. Generate educational articles that a researcher or student might want to read based on the fields, areas and domain you are given. so the response will be an array Article objects. Each article object has the following fields: title,summary,tags,category.The category will either be one of ${categories.map(c => c.name)}.  Your response should be purely in JSON. if you find any sexually explicit, illegal content or come across any error or issue repond with a object with an error key stating the nature of your error. Let your JSON Be Minnified and no line breaks`,
@@ -48,7 +61,7 @@ export async function generateAIArticles({ domains = [], limit = 10, level = "be
               "text": `
                  Fields: ${allowedDomains.join(",")}
         Limit: ${limit}
-        Excluded Topics: ${simmilarTopics.map(a => a.title)}
+        Excluded Topics: ${simmilarTopics.map(a => a.title).join(",")}
         Level: ${level}
               `
             }
@@ -62,7 +75,6 @@ export async function generateAIArticles({ domains = [], limit = 10, level = "be
       await fs.writeFile("response.json", rawText);
     }
     const unFilterred = JSON.parse(rawText);
-    console.log(unFilterred)
     const generatedArticles = await Promise.all(unFilterred.articles.filter(async article => {
       const existing = await prisma.article.findFirst({
         where: {
@@ -74,7 +86,7 @@ export async function generateAIArticles({ domains = [], limit = 10, level = "be
       })
       return !existing
     }))
-    return { articles: generatedArticles };
+    return { articles: generatedArticles, lowercaseDomains };
   } catch (error) {
     console.log(error)
     return { err: "Unable to generate at this time" }

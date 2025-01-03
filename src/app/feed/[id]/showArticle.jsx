@@ -8,7 +8,7 @@ import SessionValidator from '@/app/components/sessionValidator'
 import { createComment, getUserById, suggestArticles } from '@/app/api/user/functions'
 import Link from 'next/link'
 import { Textarea } from '@/components/ui/textarea'
-import { Block } from 'notiflix'
+import { Block, Loading } from 'notiflix'
 import { toast } from 'sonner'
 import dayjs from 'dayjs'
 import { BrainCircuit, MessageCircle } from 'lucide-react'
@@ -24,6 +24,7 @@ function ShowArticle({ article }) {
   const [simmilar, setSimmilar] = useState([])
   const [err, setErr] = useState(false)
   async function getUserData() {
+    Loading.remove()
     try {
       setErr(false)
       const data = await getUserById(window.userId)

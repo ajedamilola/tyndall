@@ -14,6 +14,11 @@ export default function Tweet({ tweet, ref }) {
     <div
       ref={ref}
       className='p-4 border-b border-gray-800 hover:bg-gray-800/50 block' id={tweet.title}
+      onClick={() => {
+        Loading.dots(tweet.contentStatus == "Generated" ? "Loading" : "Please wait while we Generate your article", {
+          messageMaxLength: 50
+        })
+      }}
 
     >
       <div className='flex space-x-4' >

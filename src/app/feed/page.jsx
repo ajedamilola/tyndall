@@ -164,9 +164,6 @@ function Page() {
                 <p className='text-gray-400'>
                   A platform that is designed to make learning and studying easier by providing you highly informative and relevant content. Powered by <b>Generative AI</b>
                 </p>
-                <Button className='bg-white text-black hover:bg-gray-200'>
-                  Get Started
-                </Button>
               </div>
             </div>
 

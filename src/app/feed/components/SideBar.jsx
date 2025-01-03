@@ -36,7 +36,7 @@ function SideBar({ user }) {
       </AlertDialog>
       <div className='flex flex-col items-center lg:items-start space-y-4'>
         <Avatar className='h-12 w-12'>
-          <AvatarImage src='/placeholder.svg?height=48&width=48' />
+          <AvatarImage src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user?.email}`} />
           <AvatarFallback className='text-black'>{user?.name && user?.name[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className='hidden lg:block'>

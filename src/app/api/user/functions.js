@@ -106,7 +106,7 @@ export async function getArticleFeed({
 
 export async function generateMoreArticles(id) {
   const user = await getUserById(id);
-  const aiArticles = await generateAIArticles(user.preferences, 50, user.level);
+  const aiArticles = await generateAIArticles({ domains: user.preferences, limit: 50, level: user.level });
   console.log(aiArticles)
   if (!aiArticles.err) {
     console.log(aiArticles.articles.map(a => ({
@@ -114,6 +114,9 @@ export async function generateMoreArticles(id) {
       summary: a.summary,
       fields: a.tags,
       category: a.category,
+      content: "",
+      level: user.level,
+      rawCategories: aiArticles.lowercaseDomains
     })))
     const articles = await prisma.article.createManyAndReturn({
       skipDuplicates: true,
@@ -123,7 +126,8 @@ export async function generateMoreArticles(id) {
         fields: a.tags,
         category: a.category,
         content: "",
-        level: user.level
+        level: user.level,
+        rawCategories: aiArticles.lowercaseDomains
       }))
     })
 
