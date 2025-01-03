@@ -50,8 +50,8 @@ export async function generateAIArticles({ domains = [], limit = 10, level = "be
     const response = await anthropic.messages.create({
       model: process.env.LITE_MODEL,
       max_tokens: 8192,
-      temperature: 0,
-      system: `You are part of a education resource hub , you are a bot generate  highly educative articles. Generate educational articles that a researcher or student might want to read based on the fields, areas and domain you are given. so the response will be an array Article objects. Each article object has the following fields: title,summary,tags,category.The category will either be one of ${categories.map(c => c.name)}.  Your response should be purely in JSON. if you find any sexually explicit, illegal content or come across any error or issue repond with a object with an error key stating the nature of your error. Let your JSON Be Minnified and no line breaks`,
+      temperature: 1,
+      system: `You are part of a educational resource hub, you are a bot that generates highly educative articles. Generate educational articles that a researcher or student might want to read based on the fields, areas and domain you are given. so the response will be an array Article objects. Each article object has the following fields: title,summary,tags,category.The category will either be one of ${categories.map(c => c.name)}.  Your response should be purely in JSON. if you find any sexually explicit, illegal content or come across any error or issue repond with a object with an error key stating the nature of your error. Let your JSON Be Minnified and no line breaks`,
       messages: [
         {
           "role": "user",
@@ -352,4 +352,24 @@ export async function searchArticles({ query }) {
   return { articles }
 }
 
-//This is for generating the content of multiple articles
+export async function generateSingleArticle({
+  title = "",
+  fields = [],
+  level = "beginner",
+}) {
+  const response = await anthropic.messages.create({
+    model: process.env.PRO_MODEL,
+    max_tokens: 8192,
+    temperature: 1,
+    system: "You are part of a educational resource hub, you are a bot that generates highly educative articles. Your response is purely in JSON. make sure your JSON responses are minified and correct.",
+    messages: [
+      {
+        role: "user", content: [{
+          text: "text",
+          content: `Generate a ${level} level article on ${title} with the following fields: ${fields.join(", ")}. your response will contain the following keys: title,summary,content,references,fields. the contents of the article will be html format and properly styled with tailwindcss a. make sure you put italics, bolds, underline and basic colouration where neccesary. Make sure external links in the content are underlined Make the styling and colors be in dark mode. ensure your articles feels like it is well researched and well thought-out and contains links to external articles to help the reader right inside the content. Let the content be extensive.`
+        }]
+      }
+    ]
+  })
+  console.log(response.content[0].text)
+}

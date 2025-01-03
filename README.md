@@ -9,8 +9,9 @@ The functionalities associated with the application are:
 - Users Registration and Authentication
 - Authentication and Registration via **Google**
 - Users can choose from a wide range of areas of Interests
-- Users can like articles which will serve as Telementry to help the AI in generating better contents.
+- Tracking of user activity to help the AI in generating better contents.
 - Users can share Articles generated to other applications
+- SSR of both static and dynamic content to improve SEO
 - ..And more
 
 ## Routes

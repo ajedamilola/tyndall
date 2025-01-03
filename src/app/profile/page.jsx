@@ -26,7 +26,7 @@ function page() {
       <SessionValidator />
       <SideBar user={user} />
       <div className="flex-1">
-        {user && <ProfileDetails user={user} />}
+        {user && <ProfileDetails user={user} setUser={setUser} />}
       </div>
       <MobileNav />
     </div>

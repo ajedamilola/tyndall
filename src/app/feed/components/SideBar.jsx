@@ -3,7 +3,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Book, Home, LogOut, Star, User } from 'lucide-react'
+import { Home, LogOut, Sparkles, Star, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
@@ -40,7 +40,7 @@ function SideBar({ user }) {
           <AvatarFallback className='text-black'>{user?.name && user?.name[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className='hidden lg:block'>
-          {user?.name ? <h2 className='font-bold '>{user?.name}s</h2> : <Skeleton className={"w-[120px] h-full"} />}
+          {user?.name ? <h2 className='font-bold '>{user?.name}</h2> : <Skeleton className={"w-[120px] h-full"} />}
           {/* <p className='text-gray-500'>@johndoe</p> */}
         </div>
       </div>{" "}
@@ -60,6 +60,14 @@ function SideBar({ user }) {
         >
           <Star className='h-6 w-6' />
           <span className='hidden lg:inline'>Favorites</span>
+        </Link>
+        <Link
+          href={"/custom-articles"}
+          variant='ghost'
+          className='w-full justify-start gap-4 text-xl hover:text-[#00b8aa] hover:bg-gray-700 flex items-center p-3 rounded-md cursor-pointer '
+        >
+          <Sparkles className='h-6 w-6' />
+          <span className='hidden lg:inline'>Custom Articles</span>
         </Link>
         <Link className='w-full justify-start gap-4 text-xl hover:text-[#00b8aa] hover:bg-gray-700 flex items-center p-3 rounded-md cursor-pointer ' href={"/profile"}>
           <User className='h-6 w-6' />

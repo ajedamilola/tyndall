@@ -1,6 +1,6 @@
 "use client"
 import { Button } from '@/components/ui/button'
-import { Home, Star, User } from 'lucide-react'
+import { Home, Sparkles, Star, User } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
 
@@ -19,6 +19,11 @@ function MobileNav() {
       <Link href={"/liked-articles"}>
         <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
           <Star className='h-6 w-6' />
+        </Button>
+      </Link>
+      <Link href={"/custom-articles"}>
+        <Button variant='ghost' size='icon' className='hover:text-[#00b8aa]'>
+          <Sparkles className='h-6 w-6' />
         </Button>
       </Link>
       <Link href={"/profile"}>
